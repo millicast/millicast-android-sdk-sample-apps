@@ -17,7 +17,7 @@ fun <SideEffect> CollectSideEffect(
     effect: Flow<SideEffect>,
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
     context: CoroutineContext = Dispatchers.Main.immediate,
-    onSideEffect: suspend CoroutineScope.(effect: SideEffect) -> Unit,
+    onSideEffect: suspend CoroutineScope.(effect: SideEffect) -> Unit
 ) {
     LaunchedEffect(effect, LocalLifecycleOwner.current) {
         lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {

@@ -30,8 +30,7 @@ abstract class StateViewModel<Action : ViewAction, UiState : ViewUIState, SideEf
 
     protected fun updateUiState(block: UiState.() -> UiState) {
         viewModelScope.launch {
-            withContext(Dispatchers.Main)
-            {
+            withContext(Dispatchers.Main) {
                 _uiState.update(block)
             }
         }
@@ -39,7 +38,6 @@ abstract class StateViewModel<Action : ViewAction, UiState : ViewUIState, SideEf
     protected fun sendEffect(effect: SideEffect) {
         viewModelScope.launch { _effect.send(effect) }
     }
-
 }
 
 interface ViewAction
