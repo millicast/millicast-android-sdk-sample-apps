@@ -20,9 +20,9 @@ import androidx.compose.ui.unit.Dp
 @Composable
 fun dpToSp(dp: Dp) = with(LocalDensity.current) {
     if (isTV() && dp.value < 16) // Min Tv font size is 16sp, So we set it to a higher value
-        {
-            Dp(16.0f).toSp()
-        } else {
+    {
+        Dp(16.0f).toSp()
+    } else {
         dp.toSp()
     }
 }
@@ -43,15 +43,7 @@ fun isTV(): Boolean = with(LocalContext.current) {
 @Composable
 fun isLandscapeMode(): Boolean {
     val configuration = LocalConfiguration.current
-    return when (configuration.orientation) {
-        Configuration.ORIENTATION_LANDSCAPE -> {
-            true
-        }
-
-        else -> {
-            false
-        }
-    }
+    return configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 }
 
 private class CustomHighlightIndicationInstance(
@@ -64,7 +56,7 @@ private class CustomHighlightIndicationInstance(
         drawContent()
         if (isEnabled) {
             when (indicationElement) {
-                CustomHighlightIndication.IndicationElement.CIRLCE -> {
+                CustomHighlightIndication.IndicationElement.CIRCLE -> {
                     drawRect(color = Color.White, alpha = 0.4f)
                 }
 
@@ -76,11 +68,11 @@ private class CustomHighlightIndicationInstance(
     }
 }
 
-class CustomHighlightIndication(private val indicationElement: IndicationElement = IndicationElement.CIRLCE) :
+class CustomHighlightIndication(private val indicationElement: IndicationElement = IndicationElement.CIRCLE) :
     Indication {
     @Composable
     override fun rememberUpdatedInstance(interactionSource: InteractionSource):
-        IndicationInstance {
+            IndicationInstance {
         val isFocusedState = interactionSource.collectIsFocusedAsState()
         return remember(interactionSource) {
             CustomHighlightIndicationInstance(
@@ -91,7 +83,7 @@ class CustomHighlightIndication(private val indicationElement: IndicationElement
     }
 
     enum class IndicationElement {
-        CIRLCE,
+        CIRCLE,
         RECTANGLE
     }
 }
