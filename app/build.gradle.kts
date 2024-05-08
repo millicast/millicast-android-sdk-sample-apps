@@ -5,11 +5,11 @@ plugins {
 
 android {
     namespace = "io.dolby.millicast.androidsdk.sampleapps"
-    compileSdk = 34
+    compileSdk = Integer.parseInt(libs.versions.compileSdk.get())
 
     defaultConfig {
         applicationId = "io.dolby.millicast.androidsdk.sampleapps"
-        minSdk = 24
+        minSdk = Integer.parseInt(libs.versions.minSdkVersion.get())
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"

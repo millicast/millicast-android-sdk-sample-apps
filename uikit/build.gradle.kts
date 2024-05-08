@@ -5,10 +5,10 @@ plugins {
 
 android {
     namespace = "io.dolby.uikit"
-    compileSdk = 34
+    compileSdk = Integer.parseInt(libs.versions.compileSdk.get())
 
     defaultConfig {
-        minSdk = 24
+        minSdk = Integer.parseInt(libs.versions.minSdkVersion.get())
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }
@@ -38,7 +38,6 @@ android {
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation (platform (libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
