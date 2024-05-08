@@ -74,6 +74,7 @@ fun StateButton(
         onClick = onClick,
         enabled = isEnabled
     )
+
     Row(
         modifier = stateButtonModifier,
         verticalAlignment = Alignment.CenterVertically
@@ -82,6 +83,7 @@ fun StateButton(
             stringResource(id = R.string.stateButton_startIcon_contentDescription)
         val endIconContentDescription =
             stringResource(id = R.string.stateButton_endIcon_contentDescription)
+
         startIcon?.let {
             Image(
                 painter = it,

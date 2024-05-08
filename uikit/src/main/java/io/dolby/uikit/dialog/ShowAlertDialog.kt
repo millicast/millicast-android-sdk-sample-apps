@@ -20,7 +20,7 @@ import io.dolby.uikit.utils.isTV
 
 @Composable
 fun ShowAlertDialog(
-    title: String?,
+    title: String = "",
     description: String,
     buttonType: ButtonType = ButtonType.PRIMARY,
     confirmButtonTitle: String = "",
@@ -50,7 +50,7 @@ fun ShowAlertDialog(
                 },
                 title = {
                     Text(
-                        text = title ?: "",
+                        text = title,
                         fontSize = dpToSp(dimensionResource(R.dimen._10sdp)),
                         color = MaterialTheme.colors.onBackground
                     )
