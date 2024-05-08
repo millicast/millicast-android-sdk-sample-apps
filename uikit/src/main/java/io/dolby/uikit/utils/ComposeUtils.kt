@@ -57,9 +57,8 @@ private class CustomHighlightIndicationInstance(
         if (isEnabled) {
             when (indicationElement) {
                 CustomHighlightIndication.IndicationElement.CIRCLE -> {
-                    drawRect(color = Color.White, alpha = 0.4f)
+                    drawCircle(color = Color.White, alpha = 0.4f)
                 }
-
                 else -> {
                     drawRect(color = Color.White, alpha = 0.4f)
                 }
