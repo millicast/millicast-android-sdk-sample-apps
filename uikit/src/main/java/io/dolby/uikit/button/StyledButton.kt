@@ -1,16 +1,3 @@
-/*
- *
- *  This program is protected under international and U.S. copyright laws as
- *  an unpublished work. This program is confidential and proprietary to the
- *  copyright owners. Reproduction or disclosure, in whole or in part, or the
- *  production of derivative works therefrom without the express permission of
- *  the copyright owners is prohibited.
- *
- *                   Copyright (C) 2022 by Dolby Laboratories.
- *                              All rights reserved.
- *
- */
-
 package io.dolby.uikit.button
 
 import android.content.Context
@@ -73,8 +60,9 @@ fun StyledButton(
     val fontColor = if (isEnabled) fontColor(backgroundColor) else MaterialTheme.colors.onSurface
     val borderColor = borderColor(viewState, buttonType)
     val buttonContentDescription = "$buttonText ${ stringResource(id = buttonContentDescriptionId) }"
+
     Button(
-        modifier = modifier.then(Modifier.semantics { contentDescription = buttonContentDescription }.focusRequester(focusRequester)),
+        modifier = modifier.semantics { contentDescription = buttonContentDescription }.focusRequester(focusRequester),
         interactionSource = interactionSource,
         onClick = { onClickAction?.invoke(context) },
         content = {
