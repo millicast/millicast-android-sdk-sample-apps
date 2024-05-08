@@ -20,9 +20,9 @@ import androidx.compose.ui.unit.Dp
 @Composable
 fun dpToSp(dp: Dp) = with(LocalDensity.current) {
     if (isTV() && dp.value < 16) // Min Tv font size is 16sp, So we set it to a higher value
-    {
-        Dp(16.0f).toSp()
-    } else {
+        {
+            Dp(16.0f).toSp()
+        } else {
         dp.toSp()
     }
 }
@@ -71,7 +71,7 @@ class CustomHighlightIndication(private val indicationElement: IndicationElement
     Indication {
     @Composable
     override fun rememberUpdatedInstance(interactionSource: InteractionSource):
-            IndicationInstance {
+        IndicationInstance {
         val isFocusedState = interactionSource.collectIsFocusedAsState()
         return remember(interactionSource) {
             CustomHighlightIndicationInstance(
