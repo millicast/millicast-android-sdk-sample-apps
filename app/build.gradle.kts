@@ -5,11 +5,11 @@ plugins {
 
 android {
     namespace = "io.dolby.millicast.androidsdk.sampleapps"
-    compileSdk = Integer.parseInt(libs.versions.compileSdk.get())
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "io.dolby.millicast.androidsdk.sampleapps"
-        minSdk = Integer.parseInt(libs.versions.minSdkVersion.get())
+        minSdk = 24
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -40,7 +40,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = libs.versions.kotlin.compiler.version.get()
+        kotlinCompilerExtensionVersion = "1.5.1"
     }
     packaging {
         resources {
@@ -51,7 +51,6 @@ android {
 
 dependencies {
     implementation(libs.millicast.sdk)
-    api(project(":uikit"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.ui.navigation)
