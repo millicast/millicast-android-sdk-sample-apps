@@ -22,4 +22,3 @@ dependencyResolutionManagement {
 
 rootProject.name = "Millicast-Android-SDK-Sample-Apps"
 include(":app")
-include(":uikit")

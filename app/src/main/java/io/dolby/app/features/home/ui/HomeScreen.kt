@@ -21,19 +21,19 @@ import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import io.dolby.app.navigation.NavigationContract
+import io.dolby.app.common.ui.ButtonType
+import io.dolby.app.common.ui.DolbyBackgroundBox
+import io.dolby.app.common.ui.DolbyCopyrightFooterView
+import io.dolby.app.common.ui.StyledButton
+import io.dolby.app.common.ui.TopActionBar
+import io.dolby.app.common.ui.fontColor
+import io.dolby.app.navigation.NavAction
 import io.dolby.app.navigation.NavigationViewModel
 import io.dolby.millicast.androidsdk.sampleapps.R
-import io.dolby.uikit.DolbyBackgroundBox
-import io.dolby.uikit.DolbyCopyrightFooterView
-import io.dolby.uikit.actionbar.TopActionBar
-import io.dolby.uikit.button.ButtonType
-import io.dolby.uikit.button.StyledButton
-import io.dolby.uikit.theme.fontColor
 
 @Composable
 fun HomeScreen(navigationViewModel: NavigationViewModel) {
-    val screenName = stringResource(id = R.string.stream_detail_screen_name)
+    val screenName = stringResource(id = R.string.home_screen_name)
     val background = MaterialTheme.colors.background
     Scaffold(
         topBar = {
@@ -76,7 +76,7 @@ fun HomeScreen(navigationViewModel: NavigationViewModel) {
                         },
                     buttonText = "Subscribe",
                     onClickAction = {
-                        navigationViewModel.onUiAction(NavigationContract.NavigationAction.NavigateToSubscribe)
+                        navigationViewModel.onUiAction(NavAction.ToSubscribe)
                     },
                     buttonType = ButtonType.PRIMARY
                 )

@@ -1,24 +1,19 @@
 package io.dolby.app.navigation
 
 import androidx.navigation.NavController
-import androidx.navigation.NavOptionsBuilder
-import androidx.navigation.navOptions
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onSubscription
 
 class Navigator {
-    private val navigationEventFlow =
-        MutableSharedFlow<NavigationEvent>(extraBufferCapacity = Int.MAX_VALUE)
+    private val navigationEventFlow = MutableSharedFlow<NavigationEvent>(extraBufferCapacity = Int.MAX_VALUE)
     private val navControllerStateFlow = MutableStateFlow<NavController?>(null)
-    private fun NavController.handleNavigationEvent(navigationEvent: NavigationEvent) {
-        when (navigationEvent) {
+    private fun NavController.handleNavigationEvent(navEvent: NavigationEvent) {
+        when (navEvent) {
             is NavigationEvent.NavigateTo -> {
-                navigate(navigationEvent.route, navigationEvent.options)
+                navigate(navEvent.screen.name, navEvent.screen.options)
             }
-
-            NavigationEvent.NavigateUp -> navigateUp()
         }
     }
 
@@ -29,12 +24,7 @@ class Navigator {
             .collect { navController.handleNavigationEvent(it) }
     }
 
-    fun navigate(route: String, navOptions: (NavOptionsBuilder.() -> Unit)? = null) {
-        val options = navOptions?.let { navOptions(it) }
-        navigationEventFlow.tryEmit(NavigationEvent.NavigateTo(route, options))
-    }
-
-    fun goBack() {
-        navigationEventFlow.tryEmit(NavigationEvent.NavigateUp)
+    fun navigate(screen: Screen) {
+        navigationEventFlow.tryEmit(NavigationEvent.NavigateTo(screen))
     }
 }

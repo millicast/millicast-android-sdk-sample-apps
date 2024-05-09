@@ -5,11 +5,11 @@ plugins {
 
 android {
     namespace = "io.dolby.millicast.androidsdk.sampleapps"
-    compileSdk = Integer.parseInt(libs.versions.compileSdk.get())
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "io.dolby.millicast.androidsdk.sampleapps"
-        minSdk = Integer.parseInt(libs.versions.minSdkVersion.get())
+        minSdk = 24
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -40,7 +40,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = libs.versions.kotlin.compiler.version.get()
+        kotlinCompilerExtensionVersion = "1.5.1"
     }
     packaging {
         resources {
@@ -50,28 +50,31 @@ android {
 }
 
 dependencies {
+    // millicast
     implementation(libs.millicast.sdk)
-    api(project(":uikit"))
+    implementation(libs.millicast.sdk.compose)
+    // koin
+    implementation(platform(libs.koin.bom))
+    implementation(libs.koin.core)
+    implementation(libs.koin.compose)
+    implementation(libs.koin.android)
+    implementation(libs.koin.navigation.graph)
+    // androidx
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.ui.navigation)
     implementation(libs.androidx.compose.material)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
-    implementation(platform(libs.koin.bom))
-    implementation(libs.koin.core)
-    implementation(libs.koin.compose)
-    implementation(libs.koin.android)
-    implementation(libs.koin.navigation.graph)
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    debugImplementation(libs.androidx.ui.tooling)
+    debugImplementation(libs.androidx.ui.test.manifest)
+    // testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
-    debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
 }
