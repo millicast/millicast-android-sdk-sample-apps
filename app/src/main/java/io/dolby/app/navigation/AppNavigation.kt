@@ -23,7 +23,7 @@ fun AppNavigation() {
     }
     NavHost(
         navController = navController,
-        startDestination = Screen.HomeScreen.route,
+        startDestination = Screen.HOME.name,
         enterTransition = {
             EnterTransition.None
         },
@@ -38,12 +38,12 @@ fun AppNavigation() {
         }
     ) {
         composable(
-            route = Screen.HomeScreen.route
+            route = Screen.HOME.name
         ) {
             HomeScreen(navigationViewModel)
         }
         composable(
-            route = Screen.SubscribeScreen.route
+            route = Screen.SUBSCRIBE.name
         ) {
             SubscribeScreen(navigationViewModel)
         }
