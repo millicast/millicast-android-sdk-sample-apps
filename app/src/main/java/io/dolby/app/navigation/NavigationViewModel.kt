@@ -9,9 +9,8 @@ class NavigationViewModel(private val navigator: Navigator) :
     override fun initializeState() = object : ViewUIState {}
     override fun onUiAction(uiAction: NavAction) {
         when (uiAction) {
-            is NavAction.ToSubscribe -> {
-                navigator.navigate(Screen.SUBSCRIBE)
-            }
+            is NavAction.ToSubscribe -> navigator.navigate(Screen.SUBSCRIBE)
+            NavAction.ToPublish -> navigator.navigate(Screen.PUBLISH)
         }
     }
 }

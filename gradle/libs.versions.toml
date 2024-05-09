@@ -13,6 +13,7 @@ activityCompose = "1.9.0"
 composeBom = "2023.08.00"
 spotless = "6.16.0"
 nav-version = "2.5.3"
+lifecycleRuntimeCompose = "2.7.0"
 
 [libraries]
 # millicast
@@ -40,6 +41,7 @@ androidx-compose-compiler = "androidx.compose.compiler:compiler:1.4.3"
 androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
+androidx-lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycleRuntimeCompose" }
 # testing
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }

@@ -9,6 +9,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import io.dolby.app.features.home.ui.HomeScreen
+import io.dolby.app.features.publish.ui.PublishScreen
 import io.dolby.app.features.subscribe.ui.SubscribeScreen
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
@@ -46,6 +47,11 @@ fun AppNavigation() {
             route = Screen.SUBSCRIBE.name
         ) {
             SubscribeScreen(navigationViewModel)
+        }
+        composable(
+            route = Screen.PUBLISH.name
+        ) {
+            PublishScreen(koinViewModel())
         }
     }
 }
