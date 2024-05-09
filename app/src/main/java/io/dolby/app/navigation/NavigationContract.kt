@@ -1,6 +1,6 @@
-package io.dolby.app.ui.navigation
+package io.dolby.app.navigation
 
-import io.dolby.app.ui.common.ViewAction
+import io.dolby.app.common.ViewAction
 
 interface NavigationContract {
     sealed class NavigationAction(val route: String) : ViewAction {

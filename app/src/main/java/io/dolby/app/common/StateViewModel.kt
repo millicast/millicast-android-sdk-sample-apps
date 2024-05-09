@@ -1,4 +1,4 @@
-package io.dolby.app.ui.common
+package io.dolby.app.common
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

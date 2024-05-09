@@ -1,4 +1,4 @@
-package io.dolby.app.ui.common
+package io.dolby.app.common
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect

@@ -1,4 +1,4 @@
-package io.dolby.app.ui.navigation
+package io.dolby.app.navigation
 
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
@@ -8,8 +8,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import io.dolby.app.ui.home.HomeScreen
-import io.dolby.app.ui.subscribe.SubscribeScreen
+import io.dolby.app.features.home.ui.HomeScreen
+import io.dolby.app.features.subscribe.subscribe.SubscribeScreen
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 

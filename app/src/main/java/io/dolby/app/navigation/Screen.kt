@@ -1,4 +1,4 @@
-package io.dolby.app.ui.navigation
+package io.dolby.app.navigation
 
 sealed class Screen(val route: String) {
     object SubscribeScreen : Screen(route = "subscribeScreen")

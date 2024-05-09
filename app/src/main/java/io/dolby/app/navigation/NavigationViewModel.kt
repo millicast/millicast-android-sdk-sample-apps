@@ -1,8 +1,8 @@
-package io.dolby.app.ui.navigation
+package io.dolby.app.navigation
 
-import io.dolby.app.ui.common.StateViewModel
-import io.dolby.app.ui.common.ViewSideEffect
-import io.dolby.app.ui.common.ViewUIState
+import io.dolby.app.common.StateViewModel
+import io.dolby.app.common.ViewSideEffect
+import io.dolby.app.common.ViewUIState
 
 class NavigationViewModel(private val navigator: Navigator) :
     StateViewModel<NavigationContract.NavigationAction, ViewUIState, ViewSideEffect>() {

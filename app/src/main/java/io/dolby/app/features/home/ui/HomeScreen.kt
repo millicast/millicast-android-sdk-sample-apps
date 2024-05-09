@@ -1,4 +1,4 @@
-package io.dolby.app.ui.home
+package io.dolby.app.features.home.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -21,8 +21,8 @@ import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import io.dolby.app.ui.navigation.NavigationContract
-import io.dolby.app.ui.navigation.NavigationViewModel
+import io.dolby.app.navigation.NavigationContract
+import io.dolby.app.navigation.NavigationViewModel
 import io.dolby.millicast.androidsdk.sampleapps.R
 import io.dolby.uikit.DolbyBackgroundBox
 import io.dolby.uikit.DolbyCopyrightFooterView

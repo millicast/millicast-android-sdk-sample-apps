@@ -1,4 +1,4 @@
-package io.dolby.app.ui.navigation
+package io.dolby.app.navigation
 
 import androidx.navigation.NavController
 import androidx.navigation.NavOptionsBuilder
