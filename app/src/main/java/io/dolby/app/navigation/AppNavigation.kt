@@ -45,7 +45,7 @@ fun AppNavigation() {
         composable(
             route = Screen.SUBSCRIBE.name
         ) {
-            SubscribeScreen(navigationViewModel)
+            SubscribeScreen()
         }
     }
 }

@@ -2,6 +2,7 @@ package io.dolby.app.common
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -37,6 +38,16 @@ abstract class StateViewModel<Action : ViewAction, UiState : ViewUIState, SideEf
     }
     protected fun sendEffect(effect: SideEffect) {
         viewModelScope.launch { _effect.send(effect) }
+    }
+    protected fun launchIOScope(block: suspend () -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            block.invoke()
+        }
+    }
+    protected fun launchDefaultScope(block: suspend CoroutineScope.() -> Unit) {
+        viewModelScope.launch {
+            block.invoke(this)
+        }
     }
 }
 
