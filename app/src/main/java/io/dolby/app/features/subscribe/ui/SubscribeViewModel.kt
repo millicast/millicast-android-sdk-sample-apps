@@ -88,7 +88,7 @@ class SubscribeViewModel(private val navigator: Navigator, private val queue: Qu
                     .collect { streamSourceActivities ->
                         queue.post {
                             streamSourceActivities.forEach {
-                                projectStreamActivityNewTrack(it)
+                                projectStreamActivityNewTracks(it)
                             }
                         }
                     }
@@ -124,7 +124,9 @@ class SubscribeViewModel(private val navigator: Navigator, private val queue: Qu
     private fun projectAll() {
         uiState.value.tracks.forEach { sourceTracks ->
             val list = arrayListOf<ProjectionData?>()
-            var sourceId = if (sourceTracks.key == MAIN_SOURCE_ID) null else sourceTracks.key
+
+            // Returning null as it represents the main feed source id
+            val sourceId = if (sourceTracks.key == MAIN_SOURCE_ID) null else sourceTracks.key
             sourceTracks.value.forEach {
                 list.add(
                     ProjectionData(
@@ -193,7 +195,12 @@ class SubscribeViewModel(private val navigator: Navigator, private val queue: Qu
         }
     }
 
-    private suspend fun projectStreamActivityNewTrack(streamSourceActivity: StreamSourceActivity) {
+    /**
+     * This method project every newly added track for every new source. Considering that we don't
+     * Want to project the main feed(Which has a null sourceId) again as it is projected by default.
+     * @param sourceId The target source to be projected
+     */
+    private suspend fun projectStreamActivityNewTracks(streamSourceActivity: StreamSourceActivity) {
         val sourceId = streamSourceActivity.sourceId ?: MAIN_SOURCE_ID
         val cached = streamIdMap.getOrPut(
             sourceId
@@ -207,7 +214,7 @@ class SubscribeViewModel(private val navigator: Navigator, private val queue: Qu
         streamSourceActivity.copy(activeTracks = cachedTracks.toTypedArray())
         streamIdMap[sourceId] = streamSourceActivity
 
-        streamSourceActivity.sourceId?.let {
+        streamSourceActivity.sourceId?.let { // Prevent re-projecting the main source
             newTracks.forEach {
                 uiState.value.subscriber?.let { subscriber ->
                     val newlyAddedLocalTrack = subscriber.addRemoteTrackForResult(it.media)
