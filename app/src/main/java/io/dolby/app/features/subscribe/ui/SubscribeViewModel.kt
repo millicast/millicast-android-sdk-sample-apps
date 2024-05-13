@@ -9,16 +9,24 @@ import com.millicast.subscribers.state.SubscriberConnectionState
 import com.millicast.subscribers.state.TrackHolder
 import com.millicast.utils.Queue
 import io.dolby.app.common.StateViewModel
-import io.dolby.app.navigation.Navigator
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
-class SubscribeViewModel(private val navigator: Navigator, private val queue: Queue) :
+class SubscribeViewModel(private val queue: Queue) :
     StateViewModel<SubscribeAction, SubscribeState, SubscribeEffect>() {
     private val streamIdMap = mutableMapOf<String, StreamSourceActivity>()
+    val sourceVideoTracks =
+        uiState.map { state -> filterVideoTrackHolder(state.tracks) } // Exclude sources with audio only
+
     override fun initializeState() =
         SubscribeState()
+
+    private fun filterVideoTrackHolder(tracks: LinkedHashMap<String, List<TrackHolder>>): Map<String, TrackHolder.VideoTrackHolder> {
+        return tracks.mapValues {
+            it.value.filterIsInstance<TrackHolder.VideoTrackHolder>().first()
+        }
+    }
 
     override fun onUiAction(action: SubscribeAction) {
         when (action) {
@@ -122,21 +130,21 @@ class SubscribeViewModel(private val navigator: Navigator, private val queue: Qu
      * Project all sources. This method serves the case of projecting after being unprojected
      */
     private fun projectAll() {
-        uiState.value.tracks.forEach { sourceTracks ->
-            val list = arrayListOf<ProjectionData?>()
+        launchDefaultScope {
+            uiState.value.tracks.forEach { sourceTracks ->
+                val list = arrayListOf<ProjectionData?>()
 
-            // Returning null as it represents the main feed source id
-            val sourceId = if (sourceTracks.key == MAIN_SOURCE_ID) null else sourceTracks.key
-            sourceTracks.value.forEach {
-                list.add(
-                    ProjectionData(
-                        trackId = it.track.kind.name.lowercase(),
-                        media = it.track.kind.name.lowercase(),
-                        mid = it.mid!!
+                // Returning null as it represents the main feed source id
+                val sourceId = if (sourceTracks.key == MAIN_SOURCE_ID) null else sourceTracks.key
+                sourceTracks.value.forEach {
+                    list.add(
+                        ProjectionData(
+                            trackId = it.track.kind.name.lowercase(),
+                            media = it.track.kind.name.lowercase(),
+                            mid = it.mid!!
+                        )
                     )
-                )
-            }
-            launchDefaultScope {
+                }
                 uiState.value.subscriber?.project(sourceId, list)
             }
         }
@@ -158,7 +166,7 @@ class SubscribeViewModel(private val navigator: Navigator, private val queue: Qu
                     )
                 )
             }
-            launchDefaultScope {
+            launchIOScope {
                 uiState.value.subscriber?.project(sourceId, list)
             }
         }
@@ -174,7 +182,7 @@ class SubscribeViewModel(private val navigator: Navigator, private val queue: Qu
             list.addAll(mediaIdList)
             list
         }
-        launchDefaultScope {
+        launchIOScope {
             uiState.value.subscriber?.unproject(ArrayList(mediaIdList))
         }
     }
@@ -189,7 +197,7 @@ class SubscribeViewModel(private val navigator: Navigator, private val queue: Qu
             tracks.forEach {
                 list.add(it.mid)
             }
-            launchDefaultScope {
+            launchIOScope {
                 uiState.value.subscriber?.unproject(list)
             }
         }
@@ -241,15 +249,17 @@ class SubscribeViewModel(private val navigator: Navigator, private val queue: Qu
 
     private fun updateSourceTracks(sourceId: String, trackHolder: TrackHolder) {
         updateUiState {
-            this.tracks.putIfAbsent(sourceId, emptyList())
-            val trackHolderList = this.tracks[sourceId].orEmpty()
+            val tracksCopy = linkedMapOf<String, List<TrackHolder>>()
+            tracksCopy.putAll(this.tracks)
+            tracksCopy.putIfAbsent(sourceId, emptyList())
+            val trackHolderList = tracksCopy[sourceId].orEmpty()
             val updatedTrackHolderList =
                 if (trackHolderList.indexOfFirst { it.track.kind == trackHolder.track.kind } >= 0) trackHolderList else trackHolderList.plus(
                     trackHolder
                 ) // Prevent adding same track holder
-            this.tracks[sourceId] = updatedTrackHolderList
+            tracksCopy[sourceId] = updatedTrackHolderList
             Log.i(TAG, "sourceTracks ${this.tracks}")
-            copy(tracks = this.tracks)
+            copy(tracks = tracksCopy)
         }
     }
 
