@@ -26,7 +26,6 @@ fun SubscribeScreen(
     isMultiView: Boolean,
     subscribeViewModel: SubscribeViewModel = koinInject(parameters = { parametersOf(isMultiView) })
 ) {
-    // TODO To be splitted into multiview.
     val lifecycleOwner = rememberUpdatedState(LocalLifecycleOwner.current)
     val uiState by subscribeViewModel.uiState.collectAsStateWithLifecycle()
     val tag = stringResource(id = R.string.subscribe_screen_tag)
