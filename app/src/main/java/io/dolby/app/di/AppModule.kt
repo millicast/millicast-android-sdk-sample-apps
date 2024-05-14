@@ -14,5 +14,5 @@ val navigationModule = module {
 
 val subscribeModule = module {
     factory { Queue() }
-    viewModel { SubscribeViewModel(get()) }
+    viewModel { parameters -> SubscribeViewModel(queue = get(), isMultiView = parameters.get()) }
 }

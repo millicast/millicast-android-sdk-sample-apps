@@ -16,6 +16,7 @@ data class SubscribeModelState(
 
 data class SubscribeUiState(
     val shouldShowTracks: Boolean = false,
+    val isMultiView: Boolean = false,
     val sourceVideoTracks: Map<String, TrackHolder.VideoTrackHolder> = emptyMap()
 ) : ViewUIState
 

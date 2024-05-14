@@ -13,11 +13,19 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
-class SubscribeViewModel(private val queue: Queue) :
+class SubscribeViewModel(private val queue: Queue, private val isMultiView: Boolean) :
     MultipleStatesViewModel<SubscribeAction, SubscribeUiState, SubscribeModelState, SubscribeEffect>() {
     private val streamIdMap = mutableMapOf<String, StreamSourceActivity>()
 
-    override fun initializeUiState() = SubscribeUiState()
+    init {
+        updateUiState {
+            copy(isMultiView = this@SubscribeViewModel.isMultiView)
+        }
+    }
+
+    override fun initializeUiState(): SubscribeUiState {
+        return SubscribeUiState()
+    }
 
     override fun initializeState() = SubscribeModelState()
 
@@ -42,9 +50,6 @@ class SubscribeViewModel(private val queue: Queue) :
             }
         }
         return nonNullTracks
-    }
-
-    fun transform(videoTrackHolder: TrackHolder.VideoTrackHolder?) {
     }
 
     override fun onUiAction(action: SubscribeAction) {
@@ -119,13 +124,7 @@ class SubscribeViewModel(private val queue: Queue) :
                         }
                     }
             }
-            subscriber.setCredentials(
-                Credential(
-                    streamName = "multiview",
-                    accountId = "k9Mwad",
-                    apiUrl = "https://director.millicast.com/api/director/subscribe"
-                )
-            )
+            subscriber.setCredentials(getCredentials())
             subscriber.connect()
             subscribe()
             subscriber.enableStats(true)
@@ -134,6 +133,22 @@ class SubscribeViewModel(private val queue: Queue) :
                     subscriber = subscriber
                 )
             }
+        }
+    }
+
+    private fun getCredentials(): Credential {
+        return if (uiState.value.isMultiView) {
+            Credential(
+                streamName = "multiview",
+                accountId = "k9Mwad",
+                apiUrl = "https://director.millicast.com/api/director/subscribe"
+            )
+        } else {
+            Credential(
+                streamName = "singleview",
+                accountId = "k9Mwad",
+                apiUrl = "https://director.millicast.com/api/director/subscribe"
+            )
         }
     }
 
@@ -201,7 +216,9 @@ class SubscribeViewModel(private val queue: Queue) :
             list
         }
         launchIOScope {
-            state.value.subscriber?.unproject(ArrayList(mediaIdList))
+            if (state.value.connectionState == SubscriberConnectionState.Subscribed) {
+                state.value.subscriber?.unproject(ArrayList(mediaIdList))
+            }
         }
     }
 
@@ -262,6 +279,7 @@ class SubscribeViewModel(private val queue: Queue) :
         launchDefaultScope {
             state.value.subscriber?.unsubscribe()
             state.value.subscriber?.disconnect()
+            state.value.subscriber?.release()
         }
     }
 

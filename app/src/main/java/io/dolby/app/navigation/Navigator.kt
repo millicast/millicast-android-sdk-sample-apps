@@ -7,12 +7,13 @@ import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onSubscription
 
 class Navigator {
-    private val navigationEventFlow = MutableSharedFlow<NavigationEvent>(extraBufferCapacity = Int.MAX_VALUE)
+    private val navigationEventFlow =
+        MutableSharedFlow<NavigationEvent>(extraBufferCapacity = Int.MAX_VALUE)
     private val navControllerStateFlow = MutableStateFlow<NavController?>(null)
     private fun NavController.handleNavigationEvent(navEvent: NavigationEvent) {
         when (navEvent) {
             is NavigationEvent.NavigateTo -> {
-                navigate(navEvent.screen.name, navEvent.screen.options)
+                navigate(navEvent.route, navEvent.navOptions)
             }
         }
     }
@@ -24,7 +25,7 @@ class Navigator {
             .collect { navController.handleNavigationEvent(it) }
     }
 
-    fun navigate(screen: Screen) {
-        navigationEventFlow.tryEmit(NavigationEvent.NavigateTo(screen))
+    fun navigate(navigationEvent: NavigationEvent) {
+        navigationEventFlow.tryEmit(navigationEvent)
     }
 }

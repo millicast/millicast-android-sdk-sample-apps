@@ -8,7 +8,11 @@ class NavigationViewModel(private val navigator: Navigator) :
     override fun onUiAction(uiAction: NavAction) {
         when (uiAction) {
             is NavAction.ToSubscribe -> {
-                navigator.navigate(Screen.SUBSCRIBE)
+                navigator.navigate(NavigationEvent.NavigateTo(Screen.Subscribe.createRoute(uiAction.isMultiView)))
+            }
+
+            is NavAction.ToSubscribeOptions -> {
+                navigator.navigate(NavigationEvent.NavigateTo(Screen.SubscribeOptions.route))
             }
         }
     }

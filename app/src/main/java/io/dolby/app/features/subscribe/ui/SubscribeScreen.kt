@@ -19,10 +19,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.dolby.app.features.subscribe.ui.tracks.Tracks
 import io.dolby.millicast.androidsdk.sampleapps.R
 import org.koin.compose.koinInject
+import org.koin.core.parameter.parametersOf
 
 @Composable
 fun SubscribeScreen(
-    subscribeViewModel: SubscribeViewModel = koinInject()
+    isMultiView: Boolean,
+    subscribeViewModel: SubscribeViewModel = koinInject(parameters = { parametersOf(isMultiView) })
 ) {
     // TODO To be splitted into multiview.
     val lifecycleOwner = rememberUpdatedState(LocalLifecycleOwner.current)

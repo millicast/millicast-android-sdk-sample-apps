@@ -15,7 +15,7 @@ fun Tracks(subscribeViewModel: SubscribeViewModel, modifier: Modifier = Modifier
     LazyColumn(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Top
+        verticalArrangement = if (uiState.isMultiView) Arrangement.Top else Arrangement.Center
     ) {
         items(uiState.sourceVideoTracks.size) {
             VideoTrack(uiState.sourceVideoTracks.entries.elementAt(it))
