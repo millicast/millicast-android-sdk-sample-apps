@@ -8,24 +8,43 @@ import com.millicast.subscribers.state.StreamSourceActivity
 import com.millicast.subscribers.state.SubscriberConnectionState
 import com.millicast.subscribers.state.TrackHolder
 import com.millicast.utils.Queue
-import io.dolby.app.common.StateViewModel
+import io.dolby.app.common.MultipleStatesViewModel
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 class SubscribeViewModel(private val queue: Queue) :
-    StateViewModel<SubscribeAction, SubscribeState, SubscribeEffect>() {
+    MultipleStatesViewModel<SubscribeAction, SubscribeUiState, SubscribeModelState, SubscribeEffect>() {
     private val streamIdMap = mutableMapOf<String, StreamSourceActivity>()
-    val sourceVideoTracks =
-        uiState.map { state -> filterVideoTrackHolder(state.tracks) } // Exclude sources with audio only
 
-    override fun initializeState() =
-        SubscribeState()
+    override fun initializeUiState() = SubscribeUiState()
+
+    override fun initializeState() = SubscribeModelState()
+
+    override fun reduceToUi(
+        state: SubscribeModelState,
+        uiState: SubscribeUiState
+    ): SubscribeUiState {
+        return uiState.copy(
+            sourceVideoTracks = if (state.tracks.isNotEmpty()) filterVideoTrackHolder(state.tracks) else emptyMap(),
+            shouldShowTracks = (state.connectionState == SubscriberConnectionState.Subscribed)
+        )
+    }
 
     private fun filterVideoTrackHolder(tracks: LinkedHashMap<String, List<TrackHolder>>): Map<String, TrackHolder.VideoTrackHolder> {
-        return tracks.mapValues {
-            it.value.filterIsInstance<TrackHolder.VideoTrackHolder>().first()
+        val videoTracksMap = tracks.mapValues {
+            it.value.filterIsInstance<TrackHolder.VideoTrackHolder>().firstOrNull()
         }
+        val nonNullTracks = linkedMapOf<String, TrackHolder.VideoTrackHolder>()
+        videoTracksMap.forEach { entry ->
+            entry.value?.let {
+                nonNullTracks.putIfAbsent(entry.key, it)
+            }
+        }
+        return nonNullTracks
+    }
+
+    fun transform(videoTrackHolder: TrackHolder.VideoTrackHolder?) {
     }
 
     override fun onUiAction(action: SubscribeAction) {
@@ -59,16 +78,15 @@ class SubscribeViewModel(private val queue: Queue) :
     fun startSubscription() {
         launchDefaultScope {
             val subscriber = Core.createSubscriber()
-            updateUiState {
+            updateModelState {
                 copy(subscriber = subscriber)
             }
             launch {
                 subscriber.state.map { it.connectionState }.distinctUntilChanged().collect {
                     Log.i(TAG, "SubscriberConnectedEvent $it")
-                    updateUiState {
+                    updateModelStateAndReduceToUi {
                         copy(
-                            connectionState = it,
-                            isSubscribed = (it == SubscriberConnectionState.Subscribed)
+                            connectionState = it
                         )
                     }
                     if (it == SubscriberConnectionState.Connected) {
@@ -79,7 +97,7 @@ class SubscribeViewModel(private val queue: Queue) :
             }
             launch {
                 subscriber.tracks.collect { trackHolder ->
-                    if (uiState.value.tracks.size <= 1) { // Special handling here as it is required to get the main source tracks here as they are projected by default
+                    if (state.value.tracks.size <= 1) { // Special handling here as it is required to get the main source tracks here as they are projected by default
                         updateSourceTracks(MAIN_SOURCE_ID, trackHolder)
                     }
                     when (trackHolder) {
@@ -111,7 +129,7 @@ class SubscribeViewModel(private val queue: Queue) :
             subscriber.connect()
             subscribe()
             subscriber.enableStats(true)
-            updateUiState {
+            updateModelState {
                 copy(
                     subscriber = subscriber
                 )
@@ -120,9 +138,9 @@ class SubscribeViewModel(private val queue: Queue) :
     }
 
     private suspend fun subscribe() {
-        if (uiState.value.connectionState == SubscriberConnectionState.Connected) {
+        if (state.value.connectionState == SubscriberConnectionState.Connected) {
             Log.i(TAG, "Subscribe")
-            uiState.value.subscriber?.subscribe()
+            state.value.subscriber?.subscribe()
         }
     }
 
@@ -131,7 +149,7 @@ class SubscribeViewModel(private val queue: Queue) :
      */
     private fun projectAll() {
         launchDefaultScope {
-            uiState.value.tracks.forEach { sourceTracks ->
+            state.value.tracks.forEach { sourceTracks ->
                 val list = arrayListOf<ProjectionData?>()
 
                 // Returning null as it represents the main feed source id
@@ -145,7 +163,7 @@ class SubscribeViewModel(private val queue: Queue) :
                         )
                     )
                 }
-                uiState.value.subscriber?.project(sourceId, list)
+                state.value.subscriber?.project(sourceId, list)
             }
         }
     }
@@ -156,7 +174,7 @@ class SubscribeViewModel(private val queue: Queue) :
      */
     private fun projectSource(sourceId: String) {
         val list = arrayListOf<ProjectionData?>()
-        uiState.value.tracks[sourceId]?.let { tracks ->
+        state.value.tracks[sourceId]?.let { tracks ->
             tracks.forEach {
                 list.add(
                     ProjectionData(
@@ -167,7 +185,7 @@ class SubscribeViewModel(private val queue: Queue) :
                 )
             }
             launchIOScope {
-                uiState.value.subscriber?.project(sourceId, list)
+                state.value.subscriber?.project(sourceId, list)
             }
         }
     }
@@ -176,14 +194,14 @@ class SubscribeViewModel(private val queue: Queue) :
      * Unproject all sources
      */
     private fun unprojectAll() {
-        val mediaIdList = uiState.value.tracks.values.flatMap { trackHolderList ->
+        val mediaIdList = state.value.tracks.values.flatMap { trackHolderList ->
             val list = arrayListOf<String?>()
             val mediaIdList = trackHolderList.map { it.mid }
             list.addAll(mediaIdList)
             list
         }
         launchIOScope {
-            uiState.value.subscriber?.unproject(ArrayList(mediaIdList))
+            state.value.subscriber?.unproject(ArrayList(mediaIdList))
         }
     }
 
@@ -193,12 +211,12 @@ class SubscribeViewModel(private val queue: Queue) :
      */
     private fun unprojectSource(sourceId: String) {
         val list = arrayListOf<String?>()
-        uiState.value.tracks[sourceId]?.let { tracks ->
+        state.value.tracks[sourceId]?.let { tracks ->
             tracks.forEach {
                 list.add(it.mid)
             }
             launchIOScope {
-                uiState.value.subscriber?.unproject(list)
+                state.value.subscriber?.unproject(list)
             }
         }
     }
@@ -224,7 +242,7 @@ class SubscribeViewModel(private val queue: Queue) :
 
         streamSourceActivity.sourceId?.let { // Prevent re-projecting the main source
             newTracks.forEach {
-                uiState.value.subscriber?.let { subscriber ->
+                state.value.subscriber?.let { subscriber ->
                     val newlyAddedLocalTrack = subscriber.addRemoteTrackForResult(it.media)
                     val projectionList = arrayListOf<ProjectionData?>(
                         ProjectionData(
@@ -242,13 +260,13 @@ class SubscribeViewModel(private val queue: Queue) :
 
     fun disconnect() {
         launchDefaultScope {
-            uiState.value.subscriber?.unsubscribe()
-            uiState.value.subscriber?.disconnect()
+            state.value.subscriber?.unsubscribe()
+            state.value.subscriber?.disconnect()
         }
     }
 
     private fun updateSourceTracks(sourceId: String, trackHolder: TrackHolder) {
-        updateUiState {
+        updateModelStateAndReduceToUi {
             val tracksCopy = linkedMapOf<String, List<TrackHolder>>()
             tracksCopy.putAll(this.tracks)
             tracksCopy.putIfAbsent(sourceId, emptyList())

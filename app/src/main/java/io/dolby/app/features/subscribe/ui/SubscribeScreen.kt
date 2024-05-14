@@ -8,7 +8,6 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
@@ -16,6 +15,7 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.dolby.app.features.subscribe.ui.tracks.Tracks
 import io.dolby.millicast.androidsdk.sampleapps.R
 import org.koin.compose.koinInject
@@ -26,7 +26,7 @@ fun SubscribeScreen(
 ) {
     // TODO To be splitted into multiview.
     val lifecycleOwner = rememberUpdatedState(LocalLifecycleOwner.current)
-    val uiState by subscribeViewModel.uiState.collectAsState()
+    val uiState by subscribeViewModel.uiState.collectAsStateWithLifecycle()
     val tag = stringResource(id = R.string.subscribe_screen_tag)
     LaunchedEffect(Unit) {
         Log.i(tag, "Screen subscribe")
@@ -67,7 +67,7 @@ fun SubscribeScreen(
             .fillMaxSize()
             .background(MaterialTheme.colors.background)
     ) {
-        if (uiState.isSubscribed) {
+        if (uiState.shouldShowTracks) {
             Tracks(subscribeViewModel, Modifier.fillMaxSize())
         }
     }

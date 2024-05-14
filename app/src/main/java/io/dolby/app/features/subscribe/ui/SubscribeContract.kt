@@ -3,15 +3,20 @@ package io.dolby.app.features.subscribe.ui
 import com.millicast.Subscriber
 import com.millicast.subscribers.state.SubscriberConnectionState
 import com.millicast.subscribers.state.TrackHolder
+import io.dolby.app.common.ModelState
 import io.dolby.app.common.ViewAction
 import io.dolby.app.common.ViewSideEffect
 import io.dolby.app.common.ViewUIState
 
-data class SubscribeState(
+data class SubscribeModelState(
     val connectionState: SubscriberConnectionState = SubscriberConnectionState.Disconnected,
-    val isSubscribed: Boolean = false,
     val subscriber: Subscriber? = null,
     val tracks: LinkedHashMap<String, List<TrackHolder>> = linkedMapOf()
+) : ModelState
+
+data class SubscribeUiState(
+    val shouldShowTracks: Boolean = false,
+    val sourceVideoTracks: Map<String, TrackHolder.VideoTrackHolder> = emptyMap()
 ) : ViewUIState
 
 sealed class SubscribeAction : ViewAction {
