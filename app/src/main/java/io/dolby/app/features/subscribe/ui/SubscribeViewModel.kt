@@ -160,7 +160,12 @@ class SubscribeViewModel(private val queue: Queue, private val isMultiView: Bool
     }
 
     /**
-     * Project all sources. This method serves the case of projecting after being unprojected
+     * Project all sources. This method serves the case of resuming after triggering a pause.
+     * Whether it was due to coming into foreground mode, or after a user intent to resume
+     * via controller.
+     * Another case also if we paused and we want to resume, so you have to store sourceId & list of
+     * projected tracks.
+     * @see [link](https://docs.dolby.io/streaming-apis/docs/android-getting-started-with-subscribing#6-project-media)
      */
     private fun projectAll() {
         launchDefaultScope {
@@ -184,7 +189,7 @@ class SubscribeViewModel(private val queue: Queue, private val isMultiView: Bool
     }
 
     /**
-     * Project specific source. This method serves the case of projecting after being unprojected
+     * Project specific source. This method serves the case of resuming after pausing
      * @param sourceId The target source to be projected
      */
     private fun projectSource(sourceId: String) {
@@ -206,7 +211,8 @@ class SubscribeViewModel(private val queue: Queue, private val isMultiView: Bool
     }
 
     /**
-     * Unproject all sources
+     * Unproject all sources using mid (The media id), So we're gathering our active mediaId list
+     * to unproject while still subscribed.
      */
     private fun unprojectAll() {
         val mediaIdList = state.value.tracks.values.flatMap { trackHolderList ->
