@@ -1,4 +1,4 @@
-package io.dolby.app.features.home.ui
+package io.dolby.app.features.subscribe.ui.options
 
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,33 +18,34 @@ import io.dolby.app.navigation.NavigationViewModel
 import io.dolby.millicast.androidsdk.sampleapps.R
 
 @Composable
-fun HomeScreen(navigationViewModel: NavigationViewModel) {
-    val screenName = stringResource(id = R.string.app_name)
+fun SubscribeOptions(navigationViewModel: NavigationViewModel) {
+    val screenName = stringResource(id = R.string.subscribe_options_screen_name)
+
     DolbyButtonsContainer(screenName = screenName) {
         StyledButton(
             Modifier
                 .fillMaxWidth()
                 .semantics {
-                    contentDescription = "Subscribe"
-                    testTag = "Subscribe"
+                    contentDescription = "Single View"
+                    testTag = "Single View"
                 },
-            buttonText = "Subscribe",
+            buttonText = "Subscribe Single View",
             onClickAction = {
-                navigationViewModel.onUiAction(NavAction.ToSubscribeOptions)
+                navigationViewModel.onUiAction(NavAction.ToSubscribe(isMultiView = false))
             },
-            buttonType = ButtonType.PRIMARY
+            buttonType = ButtonType.SECONDARY
         )
         Spacer(modifier = Modifier.height(5.dp))
         StyledButton(
             Modifier
                 .semantics {
-                    contentDescription = "Publish"
-                    testTag = "Publish"
+                    contentDescription = "Multi View"
+                    testTag = "Multi View"
                 }
                 .fillMaxWidth(),
-            buttonText = "Publish",
+            buttonText = "Subscribe Multi View",
             onClickAction = {
-                // TODO navigate to Publish screen
+                navigationViewModel.onUiAction(NavAction.ToSubscribe(isMultiView = true))
             },
             buttonType = ButtonType.SECONDARY
         )

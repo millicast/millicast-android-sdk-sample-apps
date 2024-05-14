@@ -9,6 +9,7 @@ junit = "4.13.2"
 junitVersion = "1.1.5"
 espressoCore = "3.5.1"
 lifecycleRuntimeKtx = "2.7.0"
+lifecycle-runtime-compose = "2.6.1"
 activityCompose = "1.9.0"
 composeBom = "2023.08.00"
 spotless = "6.16.0"
@@ -31,6 +32,7 @@ androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecyc
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
 androidx-compose-material = { group = "androidx.compose.material", name = "material" }
+androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycle-runtime-compose" }
 androidx-ui-navigation = { module = "androidx.navigation:navigation-compose", version.ref = "nav-version" }
 androidx-ui-navigtion-safeargs-gradle = { module = "androidx.navigation:navigation-safe-args-gradle-plugin", version.ref = "nav-version" }
 androidx-ui = { group = "androidx.compose.ui", name = "ui" }
