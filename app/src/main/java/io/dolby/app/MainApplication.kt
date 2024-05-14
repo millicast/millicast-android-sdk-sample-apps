@@ -19,7 +19,7 @@ class MainApplication : Application() {
             androidContext(this@MainApplication)
             // Load modules
             modules(navigationModule, subscribeModule)
-            Core.initialize()
         }
+        Core.initialize()
     }
 }
