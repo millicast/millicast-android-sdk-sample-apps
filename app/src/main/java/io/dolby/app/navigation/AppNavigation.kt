@@ -5,12 +5,15 @@ import androidx.compose.animation.ExitTransition
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import io.dolby.app.features.home.ui.HomeScreen
 import io.dolby.app.features.publish.ui.PublishScreen
 import io.dolby.app.features.subscribe.ui.SubscribeScreen
+import io.dolby.app.features.subscribe.ui.options.SubscribeOptions
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 
@@ -24,7 +27,7 @@ fun AppNavigation() {
     }
     NavHost(
         navController = navController,
-        startDestination = Screen.HOME.name,
+        startDestination = Screen.Home.route,
         enterTransition = {
             EnterTransition.None
         },
@@ -39,17 +42,26 @@ fun AppNavigation() {
         }
     ) {
         composable(
-            route = Screen.HOME.name
+            route = Screen.Home.route
         ) {
             HomeScreen(navigationViewModel)
         }
         composable(
-            route = Screen.SUBSCRIBE.name
+            route = Screen.SubscribeOptions.route
         ) {
-            SubscribeScreen(navigationViewModel)
+            SubscribeOptions(navigationViewModel)
         }
         composable(
-            route = Screen.PUBLISH.name
+            route = Screen.Subscribe.route,
+            arguments = listOf(navArgument(Screen.Subscribe.ARG_MULTI_VIEW) { type = NavType.BoolType })
+        ) { backStackEntry ->
+            SubscribeScreen(
+                isMultiView = backStackEntry.arguments?.getBoolean(Screen.Subscribe.ARG_MULTI_VIEW)
+                    ?: false
+            )
+        }
+        composable(
+            route = Screen.Publish.route
         ) {
             PublishScreen(koinViewModel())
         }

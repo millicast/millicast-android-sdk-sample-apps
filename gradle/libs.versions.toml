@@ -9,11 +9,11 @@ junit = "4.13.2"
 junitVersion = "1.1.5"
 espressoCore = "3.5.1"
 lifecycleRuntimeKtx = "2.7.0"
+lifecycleRuntimeCompose = "2.6.1"
 activityCompose = "1.9.0"
 composeBom = "2023.08.00"
 spotless = "6.16.0"
-nav-version = "2.5.3"
-lifecycleRuntimeCompose = "2.7.0"
+navVersion = "2.5.3"
 
 [libraries]
 # millicast
@@ -32,8 +32,9 @@ androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecyc
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
 androidx-compose-material = { group = "androidx.compose.material", name = "material" }
-androidx-ui-navigation = { module = "androidx.navigation:navigation-compose", version.ref = "nav-version" }
-androidx-ui-navigtion-safeargs-gradle = { module = "androidx.navigation:navigation-safe-args-gradle-plugin", version.ref = "nav-version" }
+androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycleRuntimeCompose" }
+androidx-ui-navigation = { module = "androidx.navigation:navigation-compose", version.ref = "navVersion" }
+androidx-ui-navigtion-safeargs-gradle = { module = "androidx.navigation:navigation-safe-args-gradle-plugin", version.ref = "navVersion" }
 androidx-ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
 androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
@@ -41,7 +42,6 @@ androidx-compose-compiler = "androidx.compose.compiler:compiler:1.4.3"
 androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
-androidx-lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycleRuntimeCompose" }
 # testing
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
