@@ -15,16 +15,18 @@ import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.accompanist.permissions.rememberPermissionState
+import com.google.accompanist.permissions.shouldShowRationale
 import io.dolby.app.common.ui.ButtonType
 import io.dolby.app.common.ui.DolbyButtonsContainer
-import io.dolby.app.common.ui.PermissionDependentButton
 import io.dolby.app.common.ui.StyledButton
-import io.dolby.app.common.ui.toPermissionModel
+import io.dolby.app.features.publish.PermissionStatus
 import io.dolby.app.features.publish.PublishAction
 import io.dolby.app.features.publish.PublishSideEffect
 import io.dolby.app.features.publish.PublishViewModel
+import io.dolby.app.features.publish.PublishingType
 import io.dolby.millicast.androidsdk.sampleapps.R
 import kotlinx.coroutines.flow.collectLatest
 import org.koin.compose.koinInject
@@ -36,19 +38,21 @@ fun PublishScreen(viewModel: PublishViewModel = koinInject()) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val microphonePermissionState =
         rememberPermissionState(permission = Manifest.permission.RECORD_AUDIO) {
-            if (it) {
-                viewModel.onUiAction(PublishAction.GrantedAudio)
-            } else {
-                viewModel.onUiAction(PublishAction.Stop)
-            }
+            viewModel.onUiAction(
+                PublishAction.PermissionUpdate(
+                    type = PublishingType.AUDIO,
+                    permissionStatus = PermissionStatus.fromHasPermission(it)
+                )
+            )
         }
     val cameraPermissionState =
         rememberPermissionState(permission = Manifest.permission.CAMERA) {
-            if (it) {
-                viewModel.onUiAction(PublishAction.GrantedVideo)
-            } else {
-                viewModel.onUiAction(PublishAction.Stop)
-            }
+            viewModel.onUiAction(
+                PublishAction.PermissionUpdate(
+                    type = PublishingType.VIDEO,
+                    permissionStatus = PermissionStatus.fromHasPermission(it)
+                )
+            )
         }
     val combinedPermissionsState = rememberMultiplePermissionsState(
         permissions = listOf(
@@ -56,69 +60,144 @@ fun PublishScreen(viewModel: PublishViewModel = koinInject()) {
             Manifest.permission.CAMERA
         )
     ) {
-        if (it.values.all { granted -> granted }) {
-            viewModel.onUiAction(PublishAction.GrantedAudioAndVideo)
-        } else {
-            viewModel.onUiAction(PublishAction.Stop)
-        }
+        val accepted = it.values.all { granted -> granted }
+        viewModel.onUiAction(
+            PublishAction.PermissionUpdate(
+                type = PublishingType.AUDIO_VIDEO,
+                permissionStatus = PermissionStatus.fromHasPermission(accepted)
+            )
+        )
     }
 
     LaunchedEffect(key1 = Unit) {
-        viewModel.effect.collectLatest {
+        // initial update of permissions only if we have permissions, otherwise they remain in default state of UNKNOWN
+        if (microphonePermissionState.status.isGranted) {
+            viewModel.onUiAction(
+                PublishAction.PermissionUpdate(
+                    type = PublishingType.AUDIO,
+                    permissionStatus = PermissionStatus.GRANTED
+                )
+            )
+        }
+        if (cameraPermissionState.status.isGranted) {
+            viewModel.onUiAction(
+                PublishAction.PermissionUpdate(
+                    type = PublishingType.VIDEO,
+                    permissionStatus = PermissionStatus.GRANTED
+                )
+            )
+        }
+        if (combinedPermissionsState.allPermissionsGranted) {
+            viewModel.onUiAction(
+                PublishAction.PermissionUpdate(
+                    type = PublishingType.AUDIO_VIDEO,
+                    permissionStatus = PermissionStatus.GRANTED
+                )
+            )
+        }
+    }
+    LaunchedEffect(key1 = viewModel.effect) {
+        viewModel.effect.collect {
             when (it) {
-                is PublishSideEffect.RequiresMicrophoneAccess -> microphonePermissionState.launchPermissionRequest()
-                is PublishSideEffect.RequiresCameraAccess -> cameraPermissionState.launchPermissionRequest()
-                is PublishSideEffect.RequiresCombinedAccess -> combinedPermissionsState.launchMultiplePermissionRequest()
+                is PublishSideEffect.RequiresPermission -> {
+                    when (it.publishingType) {
+                        PublishingType.AUDIO -> microphonePermissionState.launchPermissionRequest()
+                        PublishingType.VIDEO -> cameraPermissionState.launchPermissionRequest()
+                        PublishingType.AUDIO_VIDEO -> combinedPermissionsState.launchMultiplePermissionRequest()
+                    }
+                }
+                is PublishSideEffect.DeniedPermission -> {
+                    // check if we can show rationale
+                    when (it.publishingType) {
+                        PublishingType.AUDIO -> {
+                            if (microphonePermissionState.status.shouldShowRationale) {
+                                viewModel.onUiAction(PublishAction.PermissionUpdate(PublishingType.AUDIO, PermissionStatus.SHOW_RATIONALE))
+                            }
+                        }
+                        PublishingType.VIDEO -> {
+                            if (cameraPermissionState.status.shouldShowRationale) {
+                                viewModel.onUiAction(PublishAction.PermissionUpdate(PublishingType.VIDEO, PermissionStatus.SHOW_RATIONALE))
+                            }
+                        }
+                        PublishingType.AUDIO_VIDEO -> {
+                            if (combinedPermissionsState.shouldShowRationale) {
+                                viewModel.onUiAction(PublishAction.PermissionUpdate(PublishingType.AUDIO_VIDEO, PermissionStatus.SHOW_RATIONALE))
+                            }
+                        }
+                    }
+                    // show toast
+                }
             }
         }
     }
     DolbyButtonsContainer(screenName = screenName) {
-        PermissionDependentButton(
-            permissionModel = microphonePermissionState.toPermissionModel(),
+        StyledButton(
             modifier = Modifier
                 .fillMaxWidth()
                 .semantics {
                     contentDescription = "Publish Audio"
                     testTag = "Publish Audio"
                 },
-            allowText = "Allow Microphone Access to Publish Audio",
-            actionText = "Publish Audio",
-            requestClick = { viewModel.onUiAction(PublishAction.RequestMicrophone) },
-            actionClick = { viewModel.onUiAction(PublishAction.StartAudio) },
+            buttonText = uiState.publishingAudioButtonText,
+            onClickAction = {
+                viewModel.onUiAction(
+                    PublishAction.SelectedButton.PublishButton(
+                        type = PublishingType.AUDIO,
+                        permissionStatus = PermissionStatus.fromHasPermissionAndShowRationale(
+                            hasPermission = microphonePermissionState.status.isGranted,
+                            shouldShowRationale = microphonePermissionState.status.shouldShowRationale
+                        )
+                    )
+                )
+            },
             buttonType = uiState.publishingAudioButtonType,
             isEnabled = uiState.isStartEnabled
         )
 
         Spacer(modifier = Modifier.height(5.dp))
-        PermissionDependentButton(
-            permissionModel = cameraPermissionState.toPermissionModel(),
+        StyledButton(
             modifier = Modifier
                 .fillMaxWidth()
                 .semantics {
                     contentDescription = "Publish Video"
                     testTag = "Publish Video"
                 },
-            allowText = "Allow Camera Access to Publish Video",
-            actionText = "Publish Video",
-            requestClick = { viewModel.onUiAction(PublishAction.RequestCamera) },
-            actionClick = { viewModel.onUiAction(PublishAction.StartVideo) },
+            buttonText = uiState.publishingVideoButtonText,
+            onClickAction = {
+                viewModel.onUiAction(
+                    PublishAction.SelectedButton.PublishButton(
+                        type = PublishingType.VIDEO,
+                        permissionStatus = PermissionStatus.fromHasPermissionAndShowRationale(
+                            hasPermission = cameraPermissionState.status.isGranted,
+                            shouldShowRationale = cameraPermissionState.status.shouldShowRationale
+                        )
+                    )
+                )
+            },
             buttonType = uiState.publishingVideoButtonType,
             isEnabled = uiState.isStartEnabled
         )
 
         Spacer(modifier = Modifier.height(5.dp))
-        PermissionDependentButton(
-            permissionModel = combinedPermissionsState.toPermissionModel(),
+        StyledButton(
             modifier = Modifier
                 .fillMaxWidth()
                 .semantics {
                     contentDescription = "Publish Audio and Video"
                     testTag = "Publish Audio and Video"
                 },
-            allowText = "Allow Microphone and Camera Access to Publish Audio and Video",
-            actionText = "Publish Audio and Video",
-            requestClick = { viewModel.onUiAction(PublishAction.RequestMicrophoneAndCamera) },
-            actionClick = { viewModel.onUiAction(PublishAction.StartAudioVideo) },
+            buttonText = uiState.publishingAudioVideoButtonText,
+            onClickAction = {
+                viewModel.onUiAction(
+                    PublishAction.SelectedButton.PublishButton(
+                        type = PublishingType.AUDIO_VIDEO,
+                        permissionStatus = PermissionStatus.fromHasPermissionAndShowRationale(
+                            hasPermission = combinedPermissionsState.allPermissionsGranted,
+                            shouldShowRationale = combinedPermissionsState.shouldShowRationale
+                        )
+                    )
+                )
+            },
             buttonType = uiState.publishingAudioVideoButtonType,
             isEnabled = uiState.isStartEnabled
         )
@@ -133,7 +212,7 @@ fun PublishScreen(viewModel: PublishViewModel = koinInject()) {
                 .fillMaxWidth(),
             buttonText = "Stop Publishing",
             onClickAction = {
-                viewModel.onUiAction(PublishAction.Stop)
+                viewModel.onUiAction(PublishAction.SelectedButton.Stop)
             },
             buttonType = ButtonType.SECONDARY,
             isEnabled = uiState.isStopEnabled

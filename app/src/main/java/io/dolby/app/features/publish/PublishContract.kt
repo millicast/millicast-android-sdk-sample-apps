@@ -47,33 +47,84 @@ import io.dolby.app.common.ui.ButtonType
 //    }
 // }
 
-enum class CurrentPublishingChoice { REQUEST_AUDIO, REQUEST_VIDEO, REQUEST_AUDIO_VIDEO, START_AUDIO, START_VIDEO, START_AUDIO_VIDEO, NONE }
+enum class PublishingType { AUDIO, VIDEO, AUDIO_VIDEO }
+enum class PermissionStatus {
+    UNKNOWN,
+    GRANTED,
+    SHOW_RATIONALE,
+    DENIED;
 
-data class PublishModelState(internal val publishingChoice: CurrentPublishingChoice = CurrentPublishingChoice.NONE) : ModelState
+    companion object {
+        fun fromHasPermission(hasPermission: Boolean): PermissionStatus {
+            return if (hasPermission) GRANTED else DENIED
+        }
+        fun fromHasPermissionAndShowRationale(hasPermission: Boolean, shouldShowRationale: Boolean): PermissionStatus {
+            return if (hasPermission) {
+                GRANTED
+            } else if (shouldShowRationale) {
+                SHOW_RATIONALE
+            } else {
+                DENIED
+            }
+        }
+    }
+}
+
+sealed class PublishingOptionMode {
+    data class PublishingMode(
+        val type: PublishingType,
+        val permissionStatus: PermissionStatus = PermissionStatus.UNKNOWN
+    ) : PublishingOptionMode()
+
+    data object StopMode : PublishingOptionMode()
+}
+
+data class PublishModelState(
+    val audioPublishingMode: PublishingOptionMode.PublishingMode = PublishingOptionMode.PublishingMode(
+        type = PublishingType.AUDIO
+    ),
+    val videoPublishingMode: PublishingOptionMode.PublishingMode = PublishingOptionMode.PublishingMode(
+        type = PublishingType.VIDEO
+    ),
+    val audioVideoPublishingMode: PublishingOptionMode.PublishingMode = PublishingOptionMode.PublishingMode(
+        type = PublishingType.AUDIO_VIDEO
+    ),
+    val selectedMode: PublishingOptionMode = PublishingOptionMode.StopMode
+) : ModelState {
+    fun isAudioSelected(): Boolean =
+        (selectedMode as? PublishingOptionMode.PublishingMode)?.type == PublishingType.AUDIO
+
+    fun isVideoSelected(): Boolean =
+        (selectedMode as? PublishingOptionMode.PublishingMode)?.type == PublishingType.VIDEO
+
+    fun isAudioVideoSelected(): Boolean =
+        (selectedMode as? PublishingOptionMode.PublishingMode)?.type == PublishingType.AUDIO_VIDEO
+
+    fun isStopSelected(): Boolean = selectedMode is PublishingOptionMode.StopMode
+}
 
 sealed class PublishAction : ViewAction {
-    data object RequestMicrophone : PublishAction()
-    data object RequestCamera : PublishAction()
-    data object RequestMicrophoneAndCamera : PublishAction()
-    data object GrantedAudio : PublishAction()
-    data object GrantedVideo : PublishAction()
-    data object GrantedAudioAndVideo : PublishAction()
-    data object StartAudio : PublishAction()
-    data object StartVideo : PublishAction()
-    data object StartAudioVideo : PublishAction()
-    data object Stop : PublishAction()
+    sealed class SelectedButton : PublishAction() {
+        data class PublishButton(val type: PublishingType, val permissionStatus: PermissionStatus) : PublishAction()
+        data object Stop : PublishAction()
+    }
+
+    data class PermissionUpdate(val type: PublishingType, val permissionStatus: PermissionStatus) :
+        PublishAction()
 }
 
 data class PublishViewUiState(
     val isStartEnabled: Boolean = true,
     val isStopEnabled: Boolean = false,
+    val publishingAudioButtonText: String = "Publish Audio",
+    val publishingVideoButtonText: String = "Publish Video",
+    val publishingAudioVideoButtonText: String = "Publish Audio and Video",
     val publishingAudioButtonType: ButtonType = ButtonType.SECONDARY,
     val publishingVideoButtonType: ButtonType = ButtonType.SECONDARY,
     val publishingAudioVideoButtonType: ButtonType = ButtonType.SECONDARY
 ) : ViewUIState
 
 sealed class PublishSideEffect : ViewSideEffect {
-    data object RequiresMicrophoneAccess : PublishSideEffect()
-    data object RequiresCameraAccess : PublishSideEffect()
-    data object RequiresCombinedAccess : PublishSideEffect()
+    data class RequiresPermission(val publishingType: PublishingType) : PublishSideEffect()
+    data class DeniedPermission(val publishingType: PublishingType) : PublishSideEffect()
 }
