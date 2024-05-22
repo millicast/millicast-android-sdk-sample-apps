@@ -1,12 +1,7 @@
 <resources>
     <string name="app_name">Millicast Android SDK Sample Apps</string>
-    <string name="publish_screen_name">Publish Screen</string>
-    <string name="publish_options">Publish Options</string>
-    <string name="publish_start_audio">Publish Audio Capture</string>
-    <string name="publish_start_video">Publish Video Capture</string>
-    <string name="publish_start_audio_video">Publish Audio and Video</string>
-    <string name="publish_stop">Stop Publishing</string>
     <string name="subscribe_options_screen_name">Subscribe Options</string>
+    <string name="publish_options">Publish Options</string>
     <string name="button_contentDescription">Button</string>
     <string name="text_contentDescription">Text</string>
     <string name="footer_text">Copyright © 2024 Dolby.io — All Rights Reserved</string>

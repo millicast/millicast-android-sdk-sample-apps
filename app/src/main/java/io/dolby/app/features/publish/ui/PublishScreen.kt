@@ -1,143 +1,142 @@
 package io.dolby.app.features.publish.ui
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
+import android.Manifest
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTag
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.rememberMultiplePermissionsState
+import com.google.accompanist.permissions.rememberPermissionState
 import io.dolby.app.common.ui.ButtonType
-import io.dolby.app.common.ui.DolbyBackgroundBox
-import io.dolby.app.common.ui.DolbyCopyrightFooterView
+import io.dolby.app.common.ui.DolbyButtonsContainer
+import io.dolby.app.common.ui.PermissionDependentButton
 import io.dolby.app.common.ui.StyledButton
-import io.dolby.app.common.ui.TopActionBar
-import io.dolby.app.common.ui.fontColor
+import io.dolby.app.common.ui.toPermissionModel
 import io.dolby.app.features.publish.PublishAction
+import io.dolby.app.features.publish.PublishSideEffect
 import io.dolby.app.features.publish.PublishViewModel
 import io.dolby.millicast.androidsdk.sampleapps.R
+import kotlinx.coroutines.flow.collectLatest
 import org.koin.compose.koinInject
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun PublishScreen(viewModel: PublishViewModel = koinInject()) {
-    val screenName = stringResource(id = R.string.publish_screen_name)
-    val background = MaterialTheme.colors.background
+    val screenName = stringResource(id = R.string.publish_options)
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    Scaffold(
-        topBar = {
-            TopActionBar()
-        },
-        bottomBar = {
-            DolbyCopyrightFooterView()
-        }
-    ) { paddingValues ->
-        DolbyBackgroundBox(
-            modifier = Modifier
-                .padding(paddingValues)
-                .semantics { contentDescription = screenName }
-        ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .fillMaxWidth(0.8f)
-                    .align(Alignment.Center)
-                    .background(background, shape = RoundedCornerShape(4.dp))
-                    .clip(MaterialTheme.shapes.large)
-                    .padding(horizontal = 30.dp)
-                    .padding(vertical = 16.dp)
-            ) {
-                Text(
-                    stringResource(id = R.string.publish_options),
-                    style = MaterialTheme.typography.body1,
-                    fontWeight = FontWeight.Medium,
-                    color = fontColor(MaterialTheme.colors.background),
-                    textAlign = TextAlign.Center
-                )
-
-                Spacer(modifier = Modifier.height(12.dp))
-                val startAudioStr = stringResource(R.string.publish_start_audio)
-                StyledButton(
-                    Modifier
-                        .fillMaxWidth()
-                        .semantics {
-                            contentDescription = startAudioStr
-                            testTag = startAudioStr
-                        },
-                    buttonText = startAudioStr,
-                    onClickAction = {
-                        viewModel.onUiAction(PublishAction.StartAudio)
-                    },
-                    buttonType = uiState.publishingAudioButtonType,
-                    isEnabled = uiState.isStartEnabled
-                )
-
-                Spacer(modifier = Modifier.height(5.dp))
-                val startVideoStr = stringResource(R.string.publish_start_video)
-                StyledButton(
-                    Modifier
-                        .semantics {
-                            contentDescription = startVideoStr
-                            testTag = startVideoStr
-                        }
-                        .fillMaxWidth(),
-                    buttonText = startVideoStr,
-                    onClickAction = {
-                        viewModel.onUiAction(PublishAction.StartVideo)
-                    },
-                    buttonType = uiState.publishingVideoButtonType,
-                    isEnabled = uiState.isStartEnabled
-                )
-
-                Spacer(modifier = Modifier.height(5.dp))
-                val startAudioVideoStr = stringResource(R.string.publish_start_audio_video)
-                StyledButton(
-                    Modifier
-                        .semantics {
-                            contentDescription = startAudioVideoStr
-                            testTag = startAudioVideoStr
-                        }
-                        .fillMaxWidth(),
-                    buttonText = startAudioVideoStr,
-                    onClickAction = {
-                        viewModel.onUiAction(PublishAction.StartAudioVideo)
-                    },
-                    buttonType = uiState.publishingAudioVideoButtonType,
-                    isEnabled = uiState.isStartEnabled
-                )
-
-                Spacer(modifier = Modifier.height(5.dp))
-                val stopStr = stringResource(R.string.publish_stop)
-                StyledButton(
-                    Modifier
-                        .semantics {
-                            contentDescription = stopStr
-                            testTag = stopStr
-                        }
-                        .fillMaxWidth(),
-                    buttonText = stopStr,
-                    onClickAction = {
-                        viewModel.onUiAction(PublishAction.Stop)
-                    },
-                    buttonType = ButtonType.SECONDARY,
-                    isEnabled = uiState.isStopEnabled
-                )
+    val microphonePermissionState =
+        rememberPermissionState(permission = Manifest.permission.RECORD_AUDIO) {
+            if (it) {
+                viewModel.onUiAction(PublishAction.GrantedAudio)
+            } else {
+                viewModel.onUiAction(PublishAction.Stop)
             }
         }
+    val cameraPermissionState =
+        rememberPermissionState(permission = Manifest.permission.CAMERA) {
+            if (it) {
+                viewModel.onUiAction(PublishAction.GrantedVideo)
+            } else {
+                viewModel.onUiAction(PublishAction.Stop)
+            }
+        }
+    val combinedPermissionsState = rememberMultiplePermissionsState(
+        permissions = listOf(
+            Manifest.permission.RECORD_AUDIO,
+            Manifest.permission.CAMERA
+        )
+    ) {
+        if (it.values.all { granted -> granted }) {
+            viewModel.onUiAction(PublishAction.GrantedAudioAndVideo)
+        } else {
+            viewModel.onUiAction(PublishAction.Stop)
+        }
+    }
+
+    LaunchedEffect(key1 = Unit) {
+        viewModel.effect.collectLatest {
+            when (it) {
+                is PublishSideEffect.RequiresMicrophoneAccess -> microphonePermissionState.launchPermissionRequest()
+                is PublishSideEffect.RequiresCameraAccess -> cameraPermissionState.launchPermissionRequest()
+                is PublishSideEffect.RequiresCombinedAccess -> combinedPermissionsState.launchMultiplePermissionRequest()
+            }
+        }
+    }
+    DolbyButtonsContainer(screenName = screenName) {
+        PermissionDependentButton(
+            permissionModel = microphonePermissionState.toPermissionModel(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .semantics {
+                    contentDescription = "Publish Audio"
+                    testTag = "Publish Audio"
+                },
+            allowText = "Allow Microphone Access to Publish Audio",
+            actionText = "Publish Audio",
+            requestClick = { viewModel.onUiAction(PublishAction.RequestMicrophone) },
+            actionClick = { viewModel.onUiAction(PublishAction.StartAudio) },
+            buttonType = uiState.publishingAudioButtonType,
+            isEnabled = uiState.isStartEnabled
+        )
+
+        Spacer(modifier = Modifier.height(5.dp))
+        PermissionDependentButton(
+            permissionModel = cameraPermissionState.toPermissionModel(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .semantics {
+                    contentDescription = "Publish Video"
+                    testTag = "Publish Video"
+                },
+            allowText = "Allow Camera Access to Publish Video",
+            actionText = "Publish Video",
+            requestClick = { viewModel.onUiAction(PublishAction.RequestCamera) },
+            actionClick = { viewModel.onUiAction(PublishAction.StartVideo) },
+            buttonType = uiState.publishingVideoButtonType,
+            isEnabled = uiState.isStartEnabled
+        )
+
+        Spacer(modifier = Modifier.height(5.dp))
+        PermissionDependentButton(
+            permissionModel = combinedPermissionsState.toPermissionModel(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .semantics {
+                    contentDescription = "Publish Audio and Video"
+                    testTag = "Publish Audio and Video"
+                },
+            allowText = "Allow Microphone and Camera Access to Publish Audio and Video",
+            actionText = "Publish Audio and Video",
+            requestClick = { viewModel.onUiAction(PublishAction.RequestMicrophoneAndCamera) },
+            actionClick = { viewModel.onUiAction(PublishAction.StartAudioVideo) },
+            buttonType = uiState.publishingAudioVideoButtonType,
+            isEnabled = uiState.isStartEnabled
+        )
+
+        Spacer(modifier = Modifier.height(5.dp))
+        StyledButton(
+            Modifier
+                .semantics {
+                    contentDescription = "Stop Publishing"
+                    testTag = "Stop Publishing"
+                }
+                .fillMaxWidth(),
+            buttonText = "Stop Publishing",
+            onClickAction = {
+                viewModel.onUiAction(PublishAction.Stop)
+            },
+            buttonType = ButtonType.SECONDARY,
+            isEnabled = uiState.isStopEnabled
+        )
     }
 }
