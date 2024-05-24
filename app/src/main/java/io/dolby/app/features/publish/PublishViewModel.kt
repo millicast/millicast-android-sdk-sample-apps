@@ -196,7 +196,6 @@ class PublishViewModel(
         return PublishViewUiState(
             isStartEnabled = state.isStopSelected(),
             isStopEnabled = !state.isStopSelected(),
-            showPublishingConnectionState = true, // always show for now
             publishingConnectionStateText = "Publishing State: ${state.publishingState?.toString() ?: "null"}",
             publishingAudioButtonText = audioText,
             publishingVideoButtonText = videoText,

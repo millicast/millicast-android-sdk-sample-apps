@@ -30,6 +30,7 @@ import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
+import io.dolby.app.common.CollectSideEffect
 import io.dolby.app.common.ui.ButtonType
 import io.dolby.app.common.ui.DolbyButtonsContainer
 import io.dolby.app.common.ui.StyledButton
@@ -84,7 +85,7 @@ fun PublishScreen(viewModel: PublishViewModel = koinInject()) {
 
     DisposableEffect(viewModel) {
         val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_PAUSE) {
+            if (event == Lifecycle.Event.ON_STOP) {
                 viewModel.onUiAction(PublishAction.SelectedButton.Stop)
             }
         }
@@ -123,56 +124,74 @@ fun PublishScreen(viewModel: PublishViewModel = koinInject()) {
             )
         }
     }
-    LaunchedEffect(key1 = viewModel.effect) {
-        viewModel.effect.collect {
-            when (it) {
-                is PublishSideEffect.RequiresPermission -> {
-                    when (it.publishingType) {
-                        PublishingType.AUDIO -> microphonePermissionState.launchPermissionRequest()
-                        PublishingType.VIDEO -> cameraPermissionState.launchPermissionRequest()
-                        PublishingType.AUDIO_VIDEO -> combinedPermissionsState.launchMultiplePermissionRequest()
-                    }
+    CollectSideEffect(effect = viewModel.effect) {
+        when (it) {
+            is PublishSideEffect.RequiresPermission -> {
+                when (it.publishingType) {
+                    PublishingType.AUDIO -> microphonePermissionState.launchPermissionRequest()
+                    PublishingType.VIDEO -> cameraPermissionState.launchPermissionRequest()
+                    PublishingType.AUDIO_VIDEO -> combinedPermissionsState.launchMultiplePermissionRequest()
                 }
-                is PublishSideEffect.DeniedPermission -> {
-                    // check if we can show rationale
-                    when (it.publishingType) {
-                        PublishingType.AUDIO -> {
-                            if (microphonePermissionState.status.shouldShowRationale) {
-                                viewModel.onUiAction(PublishAction.PermissionUpdate(PublishingType.AUDIO, PermissionStatus.SHOW_RATIONALE))
-                            }
-                        }
-                        PublishingType.VIDEO -> {
-                            if (cameraPermissionState.status.shouldShowRationale) {
-                                viewModel.onUiAction(PublishAction.PermissionUpdate(PublishingType.VIDEO, PermissionStatus.SHOW_RATIONALE))
-                            }
-                        }
-                        PublishingType.AUDIO_VIDEO -> {
-                            if (combinedPermissionsState.shouldShowRationale) {
-                                viewModel.onUiAction(PublishAction.PermissionUpdate(PublishingType.AUDIO_VIDEO, PermissionStatus.SHOW_RATIONALE))
-                            }
+            }
+
+            is PublishSideEffect.DeniedPermission -> {
+                // check if we can show rationale
+                when (it.publishingType) {
+                    PublishingType.AUDIO -> {
+                        if (microphonePermissionState.status.shouldShowRationale) {
+                            viewModel.onUiAction(
+                                PublishAction.PermissionUpdate(
+                                    PublishingType.AUDIO,
+                                    PermissionStatus.SHOW_RATIONALE
+                                )
+                            )
                         }
                     }
-                    Toast.makeText(context, "Permissions are required for publishing.", Toast.LENGTH_SHORT).show()
+                    PublishingType.VIDEO -> {
+                        if (cameraPermissionState.status.shouldShowRationale) {
+                            viewModel.onUiAction(
+                                PublishAction.PermissionUpdate(
+                                    PublishingType.VIDEO,
+                                    PermissionStatus.SHOW_RATIONALE
+                                )
+                            )
+                        }
+                    }
+
+                    PublishingType.AUDIO_VIDEO -> {
+                        if (combinedPermissionsState.shouldShowRationale) {
+                            viewModel.onUiAction(
+                                PublishAction.PermissionUpdate(
+                                    PublishingType.AUDIO_VIDEO,
+                                    PermissionStatus.SHOW_RATIONALE
+                                )
+                            )
+                        }
+                    }
                 }
-                is PublishSideEffect.PublishingError -> {
-                    Toast.makeText(context, "Publishing Error! ${it.msg}", Toast.LENGTH_SHORT).show()
-                }
+                Toast.makeText(
+                    context,
+                    "Permissions are required for publishing.",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+
+            is PublishSideEffect.PublishingError -> {
+                Toast.makeText(context, "Publishing Error! ${it.msg}", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
     DolbyButtonsContainer(screenName = screenName) {
-        if (uiState.showPublishingConnectionState) {
-            Text(
-                text = uiState.publishingConnectionStateText,
-                style = MaterialTheme.typography.body1,
-                fontWeight = FontWeight.Medium,
-                color = fontColor(MaterialTheme.colors.background),
-                textAlign = TextAlign.Center
+        Text(
+            text = uiState.publishingConnectionStateText,
+            style = MaterialTheme.typography.body1,
+            fontWeight = FontWeight.Medium,
+            color = fontColor(MaterialTheme.colors.background),
+            textAlign = TextAlign.Center
 
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-        }
+        )
+        Spacer(modifier = Modifier.height(12.dp))
 
         StyledButton(
             modifier = Modifier
