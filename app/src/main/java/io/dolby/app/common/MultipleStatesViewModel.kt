@@ -1,5 +1,6 @@
 package io.dolby.app.common
 
+import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -9,6 +10,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.updateAndGet
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.lang.reflect.Modifier
 
 abstract class MultipleStatesViewModel<Action : ViewAction, UiState : ViewUIState, State : ModelState, SideEffect : ViewSideEffect> :
     SingleStateViewModel<Action, UiState, SideEffect>() {
@@ -20,7 +22,8 @@ abstract class MultipleStatesViewModel<Action : ViewAction, UiState : ViewUIStat
     private val _state = MutableStateFlow(initialState)
     val state: StateFlow<State> = _state.asStateFlow()
 
-    protected fun updateModelState(block: State.() -> State) {
+    @VisibleForTesting(otherwise = Modifier.PROTECTED)
+    fun updateModelState(block: State.() -> State) {
         viewModelScope.launch {
             withContext(Dispatchers.Main) {
                 _state.update(block)
