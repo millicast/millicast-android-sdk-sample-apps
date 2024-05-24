@@ -1,17 +1,23 @@
 package io.dolby.app.features.publish.ui
 
 import android.Manifest
+import android.widget.Toast
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTag
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -22,6 +28,7 @@ import com.google.accompanist.permissions.shouldShowRationale
 import io.dolby.app.common.ui.ButtonType
 import io.dolby.app.common.ui.DolbyButtonsContainer
 import io.dolby.app.common.ui.StyledButton
+import io.dolby.app.common.ui.fontColor
 import io.dolby.app.features.publish.PermissionStatus
 import io.dolby.app.features.publish.PublishAction
 import io.dolby.app.features.publish.PublishSideEffect
@@ -34,6 +41,7 @@ import org.koin.compose.koinInject
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun PublishScreen(viewModel: PublishViewModel = koinInject()) {
+    val context = LocalContext.current
     val screenName = stringResource(id = R.string.publish_options)
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val microphonePermissionState =
@@ -125,12 +133,29 @@ fun PublishScreen(viewModel: PublishViewModel = koinInject()) {
                             }
                         }
                     }
-                    // show toast
+                    Toast.makeText(context, "Permissions are required for publishing.", Toast.LENGTH_SHORT).show()
+                }
+                is PublishSideEffect.PublishingError -> {
+                    Toast.makeText(context, "Publishing Error! ${it.msg}", Toast.LENGTH_SHORT).show()
                 }
             }
         }
     }
+
     DolbyButtonsContainer(screenName = screenName) {
+
+        if (uiState.showPublishingConnectionState) {
+            Text(
+                text = uiState.publishingConnectionStateText,
+                style = MaterialTheme.typography.body1,
+                fontWeight = FontWeight.Medium,
+                color = fontColor(MaterialTheme.colors.background),
+                textAlign = TextAlign.Center,
+
+                )
+            Spacer(modifier = Modifier.height(12.dp))
+        }
+
         StyledButton(
             modifier = Modifier
                 .fillMaxWidth()
