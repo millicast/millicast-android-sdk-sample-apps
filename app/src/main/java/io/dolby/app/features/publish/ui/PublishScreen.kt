@@ -8,10 +8,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -19,6 +22,8 @@ import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
@@ -35,7 +40,6 @@ import io.dolby.app.features.publish.PublishSideEffect
 import io.dolby.app.features.publish.PublishViewModel
 import io.dolby.app.features.publish.PublishingType
 import io.dolby.millicast.androidsdk.sampleapps.R
-import kotlinx.coroutines.flow.collectLatest
 import org.koin.compose.koinInject
 
 @OptIn(ExperimentalPermissionsApi::class)
@@ -43,6 +47,7 @@ import org.koin.compose.koinInject
 fun PublishScreen(viewModel: PublishViewModel = koinInject()) {
     val context = LocalContext.current
     val screenName = stringResource(id = R.string.publish_options)
+    val lifecycleOwner = rememberUpdatedState(LocalLifecycleOwner.current)
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val microphonePermissionState =
         rememberPermissionState(permission = Manifest.permission.RECORD_AUDIO) {
@@ -75,6 +80,20 @@ fun PublishScreen(viewModel: PublishViewModel = koinInject()) {
                 permissionStatus = PermissionStatus.fromHasPermission(accepted)
             )
         )
+    }
+
+    DisposableEffect(viewModel) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_PAUSE) {
+                viewModel.onUiAction(PublishAction.SelectedButton.Stop)
+            }
+        }
+        val lifecycle = lifecycleOwner.value.lifecycle
+        lifecycle.addObserver(observer)
+        onDispose {
+            lifecycle.removeObserver(observer)
+            viewModel.onUiAction(PublishAction.SelectedButton.Stop)
+        }
     }
 
     LaunchedEffect(key1 = Unit) {
@@ -143,16 +162,15 @@ fun PublishScreen(viewModel: PublishViewModel = koinInject()) {
     }
 
     DolbyButtonsContainer(screenName = screenName) {
-
         if (uiState.showPublishingConnectionState) {
             Text(
                 text = uiState.publishingConnectionStateText,
                 style = MaterialTheme.typography.body1,
                 fontWeight = FontWeight.Medium,
                 color = fontColor(MaterialTheme.colors.background),
-                textAlign = TextAlign.Center,
+                textAlign = TextAlign.Center
 
-                )
+            )
             Spacer(modifier = Modifier.height(12.dp))
         }
 

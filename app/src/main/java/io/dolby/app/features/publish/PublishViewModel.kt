@@ -14,17 +14,14 @@ import com.millicast.devices.track.VideoTrack
 import com.millicast.publishers.Credential
 import com.millicast.publishers.Option
 import com.millicast.publishers.state.PublisherConnectionState
-import com.millicast.utils.LogLevel
 import com.millicast.utils.Logger
 import io.dolby.app.common.MultipleStatesViewModel
 import io.dolby.app.common.ui.ButtonType
 import io.dolby.millicast.androidsdk.sampleapps.BuildConfig
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
 class PublishViewModel(
@@ -259,7 +256,7 @@ class PublishViewModel(
         val videoTrack = if (type == PublishingType.VIDEO || type == PublishingType.AUDIO_VIDEO) {
             try {
                 val videoSource = videoSources<CameraVideoSource>().firstOrNull()
-                updateModelState  { copy(videoSource = videoSource) }
+                updateModelState { copy(videoSource = videoSource) }
                 videoSource?.startCapture()
             } catch (e: Throwable) {
                 handleError(e)

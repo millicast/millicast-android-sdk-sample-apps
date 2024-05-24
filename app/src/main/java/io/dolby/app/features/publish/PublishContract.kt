@@ -2,11 +2,7 @@ package io.dolby.app.features.publish
 
 import com.millicast.devices.source.audio.AudioSource
 import com.millicast.devices.source.video.VideoSource
-import com.millicast.devices.track.AudioTrack
-import com.millicast.devices.track.VideoTrack
-import com.millicast.publishers.PublisherState
 import com.millicast.publishers.state.PublisherConnectionState
-import com.millicast.publishers.state.PublishingState
 import io.dolby.app.common.ModelState
 import io.dolby.app.common.ViewAction
 import io.dolby.app.common.ViewSideEffect
