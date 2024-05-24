@@ -4,17 +4,23 @@ import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.millicast.Core
 import com.millicast.Media
+import com.millicast.Media.audioSources
+import com.millicast.Media.videoSources
 import com.millicast.Publisher
+import com.millicast.devices.source.audio.MicrophoneAudioSource
+import com.millicast.devices.source.video.CameraVideoSource
+import com.millicast.publishers.Credential
 import com.millicast.publishers.Option
+import com.millicast.publishers.state.PublisherConnectionState
 import com.millicast.utils.Logger
 import io.dolby.app.common.MultipleStatesViewModel
 import io.dolby.app.common.ui.ButtonType
+import io.dolby.millicast.androidsdk.sampleapps.BuildConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.koin.core.context.startKoin
 
 class PublishViewModel(
     stateModel: PublishModelState = PublishModelState(),
@@ -30,6 +36,9 @@ class PublishViewModel(
         viewModelScope.launch {
             publisher.state.map { it.connectionState }.distinctUntilChanged().collect {
                 updateModelStateAndReduceToUi { copy(publishingState = it) }
+                if (it == PublisherConnectionState.Connected) {
+                    startPublishing()
+                }
             }
         }
     }
@@ -77,7 +86,7 @@ class PublishViewModel(
         }
         if (state.value.isAudioSelected()) {
             if (permissionStatus == PermissionStatus.GRANTED) {
-                startPublishing(PublishingType.AUDIO)
+                connectPublisher(PublishingType.AUDIO)
             } else {
                 stopPublishing()
                 if (permissionStatus == PermissionStatus.DENIED) {
@@ -103,7 +112,7 @@ class PublishViewModel(
         }
         if (state.value.isVideoSelected()) {
             if (permissionStatus == PermissionStatus.GRANTED) {
-                startPublishing(PublishingType.VIDEO)
+                connectPublisher(PublishingType.VIDEO)
             } else {
                 stopPublishing()
                 if (permissionStatus == PermissionStatus.DENIED) {
@@ -129,7 +138,7 @@ class PublishViewModel(
         }
         if (state.value.isAudioVideoSelected()) {
             if (permissionStatus == PermissionStatus.GRANTED) {
-                startPublishing(PublishingType.AUDIO_VIDEO)
+                connectPublisher(PublishingType.AUDIO_VIDEO)
             } else {
                 stopPublishing()
                 if (permissionStatus == PermissionStatus.DENIED) {
@@ -153,7 +162,7 @@ class PublishViewModel(
             )
         }
         if (selectAction.permissionStatus == PermissionStatus.GRANTED) {
-            startPublishing(selectAction.type)
+            connectPublisher(selectAction.type)
         } else {
             sendEffect(PublishSideEffect.RequiresPermission(selectAction.type))
         }
@@ -206,37 +215,32 @@ class PublishViewModel(
 
     // region publishing
 
-    fun startPublishing(type: PublishingType) {
-        startPublishingSources(type)
+    private fun connectPublisher(type: PublishingType) {
+        readyPublishingSources(type)
         val currentState = state.value
         if (currentState.hasPublishingTrack()) {
             viewModelScope.launch {
-                // TODO: credentials
                 currentState.audioTrack?.let {
                     publisher.addTrack(it)
                 }
                 currentState.videoTrack?.let {
                     publisher.addTrack(it)
                 }
-                publisher.connect()
-                // TODO: do we have to wait for publishing
-                publisher.publish(
-                    Option(
-                        audioCodec = Media.supportedAudioCodecs.first(),
-                        videoCodec = Media.supportedVideoCodecs.first(),
-                        sourceId = "androidSourceId",
-                        dtx = true,
-                        stereo = true
-                    )
+                val credentials = Credential(
+                    streamName = BuildConfig.STREAM_NAME,
+                    token = BuildConfig.PUBLISH_TOKEN,
+                    apiUrl = "https://director.millicast.com/api/director/publish"
                 )
+                publisher.setCredentials(credentials)
+                publisher.connect()
             }
         }
     }
 
-    private fun startPublishingSources(type: PublishingType) {
+    private fun readyPublishingSources(type: PublishingType) {
         if (type == PublishingType.AUDIO || type == PublishingType.AUDIO_VIDEO) {
             try {
-                val audioSource = Media.audioSources.firstOrNull()
+                val audioSource = audioSources<MicrophoneAudioSource>().firstOrNull()
                 val audioTrack = audioSource?.startCapture()
                 updateModelState { copy(audioSource = audioSource, audioTrack = audioTrack) }
             } catch (e: Throwable) {
@@ -246,7 +250,7 @@ class PublishViewModel(
         }
         if (type == PublishingType.VIDEO || type == PublishingType.AUDIO_VIDEO) {
             try {
-                val videoSource = Media.videoSources.firstOrNull()
+                val videoSource = videoSources<CameraVideoSource>().firstOrNull()
                 val videoTrack = videoSource?.startCapture()
                 updateModelState { copy(videoSource = videoSource, videoTrack = videoTrack) }
             } catch (e: Throwable) {
@@ -256,6 +260,20 @@ class PublishViewModel(
         }
         if (!state.value.hasPublishingTrack()) {
             handleError(Throwable("Unable to get media source to publish. Check permissions."))
+        }
+    }
+
+    private fun startPublishing() {
+        viewModelScope.launch {
+            publisher.publish(
+                Option(
+                    audioCodec = Media.supportedAudioCodecs.first(),
+                    videoCodec = Media.supportedVideoCodecs.first(),
+                    sourceId = "androidSourceId",
+                    dtx = true,
+                    stereo = true
+                )
+            )
         }
     }
 

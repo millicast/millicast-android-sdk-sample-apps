@@ -1,3 +1,6 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
@@ -6,6 +9,9 @@ plugins {
 android {
     namespace = "io.dolby.millicast.androidsdk.sampleapps"
     compileSdk = 34
+    val tokenPropertiesFile = rootProject.file("token.properties")
+    val tokenProperties = Properties()
+    tokenProperties.load(FileInputStream(tokenPropertiesFile))
 
     defaultConfig {
         applicationId = "io.dolby.millicast.androidsdk.sampleapps"
@@ -18,6 +24,8 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+        buildConfigField("String", "PUBLISH_TOKEN", (tokenProperties["PUBLISH_TOKEN"] as? String).orEmpty())
+        buildConfigField("String", "STREAM_NAME", (tokenProperties["STREAM_NAME"] as? String).orEmpty())
     }
 
     buildTypes {
@@ -43,6 +51,7 @@ android {
         }
     }
     buildFeatures {
+        buildConfig = true
         compose = true
     }
     composeOptions {
