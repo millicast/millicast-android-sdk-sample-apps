@@ -99,9 +99,7 @@ data class PublishModelState(
     val selectedMode: PublishingOptionMode = PublishingOptionMode.StopMode,
     val publishingState: PublisherConnectionState? = null,
     val audioSource: AudioSource? = null,
-    val videoSource: VideoSource? = null,
-    val audioTrack: AudioTrack? = null,
-    val videoTrack: VideoTrack? = null
+    val videoSource: VideoSource? = null
 ) : ModelState {
     fun isAudioSelected(): Boolean =
         (selectedMode as? PublishingOptionMode.PublishingMode)?.type == PublishingType.AUDIO
@@ -113,10 +111,6 @@ data class PublishModelState(
         (selectedMode as? PublishingOptionMode.PublishingMode)?.type == PublishingType.AUDIO_VIDEO
 
     fun isStopSelected(): Boolean = selectedMode is PublishingOptionMode.StopMode
-
-    fun hasPublishingTrack(): Boolean {
-        return audioTrack != null && videoTrack != null
-    }
 }
 
 sealed class PublishAction : ViewAction {

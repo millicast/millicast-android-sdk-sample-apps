@@ -9,17 +9,22 @@ import com.millicast.Media.videoSources
 import com.millicast.Publisher
 import com.millicast.devices.source.audio.MicrophoneAudioSource
 import com.millicast.devices.source.video.CameraVideoSource
+import com.millicast.devices.track.AudioTrack
+import com.millicast.devices.track.VideoTrack
 import com.millicast.publishers.Credential
 import com.millicast.publishers.Option
 import com.millicast.publishers.state.PublisherConnectionState
+import com.millicast.utils.LogLevel
 import com.millicast.utils.Logger
 import io.dolby.app.common.MultipleStatesViewModel
 import io.dolby.app.common.ui.ButtonType
 import io.dolby.millicast.androidsdk.sampleapps.BuildConfig
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
 class PublishViewModel(
@@ -216,14 +221,15 @@ class PublishViewModel(
     // region publishing
 
     private fun connectPublisher(type: PublishingType) {
-        readyPublishingSources(type)
-        val currentState = state.value
-        if (currentState.hasPublishingTrack()) {
+        val tracks = readyPublishingSources(type)
+        if (tracks.isEmpty()) {
+            handleError(Throwable("Unable to get media source to publish. Check permissions."))
+        } else {
             viewModelScope.launch {
-                currentState.audioTrack?.let {
+                tracks.audioTrack?.let {
                     publisher.addTrack(it)
                 }
-                currentState.videoTrack?.let {
+                tracks.videoTrack?.let {
                     publisher.addTrack(it)
                 }
                 val credentials = Credential(
@@ -237,30 +243,32 @@ class PublishViewModel(
         }
     }
 
-    private fun readyPublishingSources(type: PublishingType) {
-        if (type == PublishingType.AUDIO || type == PublishingType.AUDIO_VIDEO) {
+    private fun readyPublishingSources(type: PublishingType): ActiveTracks {
+        val audioTrack = if (type == PublishingType.AUDIO || type == PublishingType.AUDIO_VIDEO) {
             try {
                 val audioSource = audioSources<MicrophoneAudioSource>().firstOrNull()
-                val audioTrack = audioSource?.startCapture()
-                updateModelState { copy(audioSource = audioSource, audioTrack = audioTrack) }
+                updateModelState { copy(audioSource = audioSource) }
+                audioSource?.startCapture()
             } catch (e: Throwable) {
                 handleError(e)
-                return
+                null
             }
+        } else {
+            null
         }
-        if (type == PublishingType.VIDEO || type == PublishingType.AUDIO_VIDEO) {
+        val videoTrack = if (type == PublishingType.VIDEO || type == PublishingType.AUDIO_VIDEO) {
             try {
                 val videoSource = videoSources<CameraVideoSource>().firstOrNull()
-                val videoTrack = videoSource?.startCapture()
-                updateModelState { copy(videoSource = videoSource, videoTrack = videoTrack) }
+                updateModelState  { copy(videoSource = videoSource) }
+                videoSource?.startCapture()
             } catch (e: Throwable) {
                 handleError(e)
-                return
+                null
             }
+        } else {
+            null
         }
-        if (!state.value.hasPublishingTrack()) {
-            handleError(Throwable("Unable to get media source to publish. Check permissions."))
-        }
+        return ActiveTracks(audioTrack, videoTrack)
     }
 
     private fun startPublishing() {
@@ -289,9 +297,7 @@ class PublishViewModel(
                 copy(
                     selectedMode = PublishingOptionMode.StopMode,
                     audioSource = null,
-                    videoSource = null,
-                    audioTrack = null,
-                    videoTrack = null
+                    videoSource = null
                 )
             }
         }
@@ -313,4 +319,8 @@ class PublishViewModel(
     companion object {
         private const val TAG = "PublishViewModel"
     }
+}
+
+data class ActiveTracks(val audioTrack: AudioTrack?, val videoTrack: VideoTrack?) {
+    fun isEmpty() = audioTrack == null && videoTrack == null
 }
