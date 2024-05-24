@@ -23,9 +23,7 @@ class SubscribeViewModel(private val queue: Queue, private val isMultiView: Bool
         }
     }
 
-    override fun initializeUiState(): SubscribeUiState {
-        return SubscribeUiState()
-    }
+    override fun initializeUiState() = SubscribeUiState()
 
     override fun initializeState() = SubscribeModelState()
 
@@ -57,7 +55,6 @@ class SubscribeViewModel(private val queue: Queue, private val isMultiView: Bool
             is SubscribeAction.Subscribe -> {
                 startSubscription()
             }
-
             is SubscribeAction.Pause -> {
                 action.sourceId?.let {
                     unprojectSource(it)
@@ -65,7 +62,6 @@ class SubscribeViewModel(private val queue: Queue, private val isMultiView: Bool
                     unprojectAll()
                 }
             }
-
             is SubscribeAction.Resume -> {
                 action.sourceId?.let {
                     projectSource(it)
@@ -73,7 +69,6 @@ class SubscribeViewModel(private val queue: Queue, private val isMultiView: Bool
                     projectAll()
                 }
             }
-
             is SubscribeAction.Disconnect -> {
                 disconnect()
             }
@@ -90,9 +85,7 @@ class SubscribeViewModel(private val queue: Queue, private val isMultiView: Bool
                 subscriber.state.map { it.connectionState }.distinctUntilChanged().collect {
                     Log.i(TAG, "SubscriberConnectedEvent $it")
                     updateModelStateAndReduceToUi {
-                        copy(
-                            connectionState = it
-                        )
+                        copy(connectionState = it)
                     }
                     if (it == SubscriberConnectionState.Connected) {
                         Log.i(TAG, "SubscriberConnectedEvent")
@@ -129,9 +122,7 @@ class SubscribeViewModel(private val queue: Queue, private val isMultiView: Bool
             subscribe()
             subscriber.enableStats(true)
             updateModelState {
-                copy(
-                    subscriber = subscriber
-                )
+                copy(subscriber = subscriber)
             }
         }
     }
@@ -300,7 +291,8 @@ class SubscribeViewModel(private val queue: Queue, private val isMultiView: Bool
                     trackHolder
                 ) // Prevent adding same track holder
             tracksCopy[sourceId] = updatedTrackHolderList
-            Log.i(TAG, "sourceTracks ${this.tracks}")
+            Log.i(TAG, "previous sourceTracks ${this.tracks}")
+            Log.i(TAG, "new sourceTracks $tracksCopy")
             copy(tracks = tracksCopy)
         }
     }

@@ -3,6 +3,7 @@ package io.dolby.app
 import android.app.Application
 import com.millicast.Core
 import io.dolby.app.di.navigationModule
+import io.dolby.app.di.publishModule
 import io.dolby.app.di.subscribeModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
@@ -18,7 +19,7 @@ class MainApplication : Application() {
             // Reference Android context
             androidContext(this@MainApplication)
             // Load modules
-            modules(navigationModule, subscribeModule)
+            modules(navigationModule, subscribeModule, publishModule)
         }
         Core.initialize()
     }

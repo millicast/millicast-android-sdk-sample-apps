@@ -6,14 +6,11 @@ import io.dolby.app.common.ViewSideEffect
 class NavigationViewModel(private val navigator: Navigator) :
     BaseViewModel<NavAction, ViewSideEffect>() {
     override fun onUiAction(uiAction: NavAction) {
-        when (uiAction) {
-            is NavAction.ToSubscribe -> {
-                navigator.navigate(NavigationEvent.NavigateTo(Screen.Subscribe.createRoute(uiAction.isMultiView)))
-            }
-
-            is NavAction.ToSubscribeOptions -> {
-                navigator.navigate(NavigationEvent.NavigateTo(Screen.SubscribeOptions.route))
-            }
+        val route = when (uiAction) {
+            is NavAction.ToSubscribe -> Screen.Subscribe.createRoute(uiAction.isMultiView)
+            NavAction.ToSubscribeOptions -> Screen.SubscribeOptions.route
+            NavAction.ToPublish -> Screen.Publish.route
         }
+        navigator.navigate(NavigationEvent.NavigateTo(route))
     }
 }

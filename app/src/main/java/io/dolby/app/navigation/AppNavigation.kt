@@ -11,6 +11,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import io.dolby.app.features.home.ui.HomeScreen
+import io.dolby.app.features.publish.ui.PublishScreen
 import io.dolby.app.features.subscribe.ui.SubscribeScreen
 import io.dolby.app.features.subscribe.ui.options.SubscribeOptions
 import org.koin.androidx.compose.koinViewModel
@@ -58,6 +59,11 @@ fun AppNavigation() {
                 isMultiView = backStackEntry.arguments?.getBoolean(Screen.Subscribe.ARG_MULTI_VIEW)
                     ?: false
             )
+        }
+        composable(
+            route = Screen.Publish.route
+        ) {
+            PublishScreen(koinViewModel())
         }
     }
 }
