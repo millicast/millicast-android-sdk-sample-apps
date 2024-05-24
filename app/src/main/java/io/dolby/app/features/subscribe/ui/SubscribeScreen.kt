@@ -13,6 +13,9 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTag
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -65,6 +68,10 @@ fun SubscribeScreen(
     }
     Box(
         modifier = Modifier
+            .semantics {
+                contentDescription = "Playback Screen"
+                testTag = "Playback Screen"
+            }
             .fillMaxSize()
             .background(MaterialTheme.colors.background)
     ) {
