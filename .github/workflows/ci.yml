@@ -31,6 +31,6 @@ jobs:
       - name: Validate
         env:
           GIT_PAT: ${{ secrets.GITHUB_TOKEN }}
-        run:
+        run: |
           ./gradlew clean
           ./gradlew build
