@@ -75,13 +75,13 @@ class HomeScreenKtTest {
         composeTestRule.onNodeWithText("SUBSCRIBE MULTI VIEW").performClick()
         composeTestRule.waitUntilTimeout(5000)
         composeTestRule.waitUntil(3000, condition = {
-            val semanitc = SemanticsMatcher.expectValue(SemanticsProperties.TestTag, "Playback Screen")
-            composeTestRule.onAllNodes(semanitc, true).fetchSemanticsNodes().isNotEmpty()
+            val semantic = SemanticsMatcher.expectValue(SemanticsProperties.TestTag, "Playback Screen")
+            composeTestRule.onAllNodes(semantic, true).fetchSemanticsNodes().isNotEmpty()
         })
 
         composeTestRule.waitUntil(10000, condition = {
-            val semanitc = SemanticsMatcher.expectValue(SemanticsProperties.TestTag, "CAM1")
-            composeTestRule.onAllNodes(semanitc, true).fetchSemanticsNodes().isNotEmpty()
+            val semantic = SemanticsMatcher.expectValue(SemanticsProperties.TestTag, "CAM1")
+            composeTestRule.onAllNodes(semantic, true).fetchSemanticsNodes().isNotEmpty()
         })
         composeTestRule.waitUntilTimeout(20000) // Wait amount of seconds to verify a successful playback
         composeTestRule.onNodeWithTag("CAM1").assertIsDisplayed()
