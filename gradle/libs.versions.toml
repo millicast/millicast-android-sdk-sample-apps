@@ -16,8 +16,8 @@ spotless = "6.16.0"
 nav-version = "2.5.3"
 mockito-kotlin = "4.1.0"
 mockito-inline = "5.2.0"
-test_runner = "1.5.2"
-test_rules = "1.5.0"
+testRunner = "1.5.2"
+testRules = "1.5.0"
 
 [libraries]
 # millicast
@@ -56,8 +56,8 @@ androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "j
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-ui-test-compose = { group = "androidx.compose.ui", name = "ui-test" }
-androidx-ui-test-runner = { module = "androidx.test:runner", version.ref = "test_runner" }
-androidx-ui-test-rules = { module = "androidx.test:rules", version.ref = "test_rules" }
+androidx-ui-test-runner = { module = "androidx.test:runner", version.ref = "testRunner" }
+androidx-ui-test-rules = { module = "androidx.test:rules", version.ref = "testRules" }
 mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockito-kotlin" }
 mockito-inline = { module = "org.mockito:mockito-inline", version.ref = "mockito-inline" }
 
