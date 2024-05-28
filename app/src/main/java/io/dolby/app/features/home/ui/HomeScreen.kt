@@ -30,7 +30,8 @@ fun HomeScreen(navigationViewModel: NavigationViewModel) {
                 },
             buttonText = "Subscribe",
             onClickAction = {
-                navigationViewModel.onUiAction(NavAction.ToSubscribeOptions)
+                // bypassing subscribe options because it only has 1 option without a working single view stream
+                navigationViewModel.onUiAction(NavAction.ToSubscribe(isMultiView = true))
             },
             buttonType = ButtonType.PRIMARY
         )
