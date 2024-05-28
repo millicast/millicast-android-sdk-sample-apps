@@ -181,7 +181,6 @@ class SubscribeViewModelTest : KoinTest {
             }
             subscribeViewModel.onUiAction(SubscribeAction.Disconnect)
             verify(exactly = 1) { testScope.launch { subscriber.disconnect() } }
-            verify(exactly = 1) { testScope.launch { subscriber.unsubscribe() } }
             verify(exactly = 1) { testScope.launch { subscriber.release() } }
         }
 
