@@ -44,7 +44,7 @@ fun HomeScreen(navigationViewModel: NavigationViewModel) {
                 .fillMaxWidth(),
             buttonText = "Publish",
             onClickAction = {
-                // TODO navigate to Publish screen
+                navigationViewModel.onUiAction(NavAction.ToPublish)
             },
             buttonType = ButtonType.SECONDARY
         )

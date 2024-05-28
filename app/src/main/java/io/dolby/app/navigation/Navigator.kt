@@ -13,7 +13,7 @@ class Navigator {
     private fun NavController.handleNavigationEvent(navEvent: NavigationEvent) {
         when (navEvent) {
             is NavigationEvent.NavigateTo -> {
-                navigate(navEvent.route, navEvent.navOptions)
+                navigate(navEvent.route)
             }
         }
     }
@@ -25,7 +25,7 @@ class Navigator {
             .collect { navController.handleNavigationEvent(it) }
     }
 
-    fun navigate(navigationEvent: NavigationEvent) {
-        navigationEventFlow.tryEmit(navigationEvent)
+    fun navigate(navEvent: NavigationEvent) {
+        navigationEventFlow.tryEmit(navEvent)
     }
 }
