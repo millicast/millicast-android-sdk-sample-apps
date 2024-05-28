@@ -17,6 +17,8 @@ navVersion = "2.5.3"
 accompanistVersion = "0.34.0"
 mockitoKotlin = "4.1.0"
 mockitoInline = "5.2.0"
+testRunner = "1.5.2"
+testRules = "1.5.0"
 
 [libraries]
 # millicast
@@ -54,6 +56,10 @@ accompanist-permissions = { group = "com.google.accompanist", name = "accompanis
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
+androidx-ui-test-compose = { group = "androidx.compose.ui", name = "ui-test" }
+androidx-ui-test-runner = { module = "androidx.test:runner", version.ref = "testRunner" }
+androidx-ui-test-rules = { module = "androidx.test:rules", version.ref = "testRules" }
 mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockitoKotlin" }
 mockito-inline = { module = "org.mockito:mockito-inline", version.ref = "mockitoInline" }
 

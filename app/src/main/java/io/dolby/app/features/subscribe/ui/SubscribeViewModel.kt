@@ -273,11 +273,8 @@ class SubscribeViewModel(private val queue: Queue, private val isMultiView: Bool
     }
 
     fun disconnect() {
-        launchDefaultScope {
-            state.value.subscriber?.unsubscribe()
-            state.value.subscriber?.disconnect()
-            state.value.subscriber?.release()
-        }
+        state.value.subscriber?.disconnect()
+        state.value.subscriber?.release()
     }
 
     private fun updateSourceTracks(sourceId: String, trackHolder: TrackHolder) {
