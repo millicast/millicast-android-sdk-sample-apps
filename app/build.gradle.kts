@@ -9,9 +9,14 @@ plugins {
 android {
     namespace = "io.dolby.millicast.androidsdk.sampleapps"
     compileSdk = 34
-    val tokenPropertiesFile = rootProject.file("token.properties")
-    val tokenProperties = Properties()
-    tokenProperties.load(FileInputStream(tokenPropertiesFile))
+    val tokenProperties = try {
+        val tokenPropertiesFile = rootProject.file("token.properties")
+        val properties = Properties()
+        properties.load(FileInputStream(tokenPropertiesFile))
+        properties
+    } catch (e: Exception) {
+        Properties()
+    }
 
     defaultConfig {
         applicationId = "io.dolby.millicast.androidsdk.sampleapps"
@@ -24,8 +29,8 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
-        buildConfigField("String", "PUBLISH_TOKEN", (tokenProperties["PUBLISH_TOKEN"] as? String).orEmpty())
-        buildConfigField("String", "STREAM_NAME", (tokenProperties["STREAM_NAME"] as? String).orEmpty())
+        buildConfigField("String", "PUBLISH_TOKEN", (tokenProperties["PUBLISH_TOKEN"] as? String) ?: "\"\"")
+        buildConfigField("String", "STREAM_NAME", (tokenProperties["STREAM_NAME"] as? String) ?: "\"\"")
     }
 
     buildTypes {

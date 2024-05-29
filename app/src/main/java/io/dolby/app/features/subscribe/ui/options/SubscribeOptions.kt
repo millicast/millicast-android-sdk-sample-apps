@@ -22,20 +22,22 @@ fun SubscribeOptions(navigationViewModel: NavigationViewModel) {
     val screenName = stringResource(id = R.string.subscribe_options_screen_name)
 
     DolbyButtonsContainer(screenName = screenName) {
-        StyledButton(
-            Modifier
-                .fillMaxWidth()
-                .semantics {
-                    contentDescription = "Single View"
-                    testTag = "Single View"
+        if (false) { // hiding for now because we don't have a working single view stream
+            StyledButton(
+                Modifier
+                    .fillMaxWidth()
+                    .semantics {
+                        contentDescription = "Single View"
+                        testTag = "Single View"
+                    },
+                buttonText = "Subscribe Single View",
+                onClickAction = {
+                    navigationViewModel.onUiAction(NavAction.ToSubscribe(isMultiView = false))
                 },
-            buttonText = "Subscribe Single View",
-            onClickAction = {
-                navigationViewModel.onUiAction(NavAction.ToSubscribe(isMultiView = false))
-            },
-            buttonType = ButtonType.SECONDARY
-        )
-        Spacer(modifier = Modifier.height(5.dp))
+                buttonType = ButtonType.SECONDARY
+            )
+            Spacer(modifier = Modifier.height(5.dp))
+        }
         StyledButton(
             Modifier
                 .semantics {
