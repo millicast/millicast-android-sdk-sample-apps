@@ -6,7 +6,16 @@ This repository contains the starter sample app for Dolby.io [Getting Started Gu
 
 This app uses an MVI pattern with Jetpack Compose to demonstrate using the Dolby.io Streaming Android SDK. It shows both subscribing to a multiview stream and publishing with the device's microphone and camera.
 
-## Requirements
+## Using the SDK
+
+You can get the SDK library from [MavenCentral](https://central.sonatype.com/artifact/com.millicast/millicast-sdk-android)
+
+To include it in your project, please add the following to your gradle dependencies:
+```kotlin
+implementation("com.millicast:millicast-sdk-android:1.8.5")
+```
+
+## Sample App Requirements
 
 You will need:
 - A [Dolby.io Account](https://dashboard.dolby.io/signup)
@@ -14,7 +23,7 @@ You will need:
 
 ### Publishing Tokens
 
-For publishing to work:
+For publishing to work for this specific project
 - Use the Dolby.io Account to create or copy your publishing token
 - Create a token.properties like this
 ```
