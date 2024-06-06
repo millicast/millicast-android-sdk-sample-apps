@@ -23,7 +23,7 @@ You will need:
 
 ### Publishing Tokens
 
-For publishing to work
+For publishing to work:
 - Use the Dolby.io Account to create or copy your publishing token
 - Create a token.properties like this
 ```
