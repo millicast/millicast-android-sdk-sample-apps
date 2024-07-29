@@ -164,7 +164,7 @@ class SubscribeViewModelTest : KoinTest {
                     tracks = projectedTracks
                 )
             }
-            subscribeViewModel.onUiAction(SubscribeAction.Pause())
+            subscribeViewModel.onUiAction(SubscribeAction.Pause("CAM2"))
             val projectionArrayList = arrayListOf<String?>("1", "2")
             verify(exactly = 1) { testScope.launch { subscriber.unproject(projectionArrayList) } }
         }
