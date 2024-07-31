@@ -81,8 +81,9 @@ class SubscribeViewModel(private val isMultiView: Boolean) :
 
                         is RemoteVideoTrack -> {
                             updateModelStateAndReduceToUi {
-                                tracks.add(trackHolder)
-                                copy(tracks = tracks)
+                                val newTracks = ArrayList(state.value.tracks)
+                                newTracks.add(trackHolder)
+                                copy(tracks = newTracks)
                             }
                         }
                     }
