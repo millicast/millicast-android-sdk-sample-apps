@@ -42,12 +42,10 @@ fun SubscribeScreen(
             when (event) {
                 Lifecycle.Event.ON_PAUSE -> {
                     Log.d(tag, " Lifecycle onPause")
-                    subscribeViewModel.onUiAction(SubscribeAction.Pause())
                 }
 
                 Lifecycle.Event.ON_RESUME -> {
                     Log.d(tag, "Lifecycle OnResume")
-                    subscribeViewModel.onUiAction(SubscribeAction.Resume())
                 }
 
                 Lifecycle.Event.ON_DESTROY -> {

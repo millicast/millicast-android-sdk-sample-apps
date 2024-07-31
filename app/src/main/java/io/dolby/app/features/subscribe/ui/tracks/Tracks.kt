@@ -18,7 +18,10 @@ fun Tracks(subscribeViewModel: SubscribeViewModel, modifier: Modifier = Modifier
         verticalArrangement = if (uiState.isMultiView) Arrangement.Top else Arrangement.Center
     ) {
         items(uiState.sourceVideoTracks.size) {
-            VideoTrack(uiState.sourceVideoTracks.entries.elementAt(it))
+            VideoTrack(uiState.sourceVideoTracks[it])
         }
+    }
+    uiState.audioTrack?.let {
+        AudioTrack(sourceTrack = it)
     }
 }
