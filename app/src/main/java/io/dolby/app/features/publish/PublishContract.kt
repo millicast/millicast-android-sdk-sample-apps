@@ -2,6 +2,8 @@ package io.dolby.app.features.publish
 
 import com.millicast.devices.source.audio.AudioSource
 import com.millicast.devices.source.video.VideoSource
+import com.millicast.devices.track.AudioTrack
+import com.millicast.devices.track.VideoTrack
 import com.millicast.publishers.state.PublisherConnectionState
 import io.dolby.app.common.ModelState
 import io.dolby.app.common.ViewAction
@@ -41,6 +43,10 @@ sealed class PublishingOptionMode {
     data object StopMode : PublishingOptionMode()
 }
 
+data class ActiveTracks(val audioTrack: AudioTrack?, val videoTrack: VideoTrack?) {
+    fun isEmpty() = audioTrack == null && videoTrack == null
+}
+
 data class PublishModelState(
     val audioPublishingMode: PublishingOptionMode.PublishingMode = PublishingOptionMode.PublishingMode(
         type = PublishingType.AUDIO
@@ -54,7 +60,8 @@ data class PublishModelState(
     val selectedMode: PublishingOptionMode = PublishingOptionMode.StopMode,
     val publishingState: PublisherConnectionState? = null,
     val audioSource: AudioSource? = null,
-    val videoSource: VideoSource? = null
+    val videoSource: VideoSource? = null,
+    val activeTracks: ActiveTracks? = null
 ) : ModelState {
     fun isAudioSelected(): Boolean =
         (selectedMode as? PublishingOptionMode.PublishingMode)?.type == PublishingType.AUDIO
@@ -87,7 +94,9 @@ data class PublishViewUiState(
     val publishingAudioVideoButtonText: String = "Publish Audio and Video",
     val publishingAudioButtonType: ButtonType = ButtonType.SECONDARY,
     val publishingVideoButtonType: ButtonType = ButtonType.SECONDARY,
-    val publishingAudioVideoButtonType: ButtonType = ButtonType.SECONDARY
+    val publishingAudioVideoButtonType: ButtonType = ButtonType.SECONDARY,
+    val shouldShowPreview: Boolean = false,
+    val activeVideoTrack: VideoTrack? = null
 ) : ViewUIState
 
 sealed class PublishSideEffect : ViewSideEffect {
