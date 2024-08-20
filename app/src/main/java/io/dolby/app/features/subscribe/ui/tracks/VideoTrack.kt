@@ -15,6 +15,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.viewinterop.AndroidView
 import com.millicast.Media
+import com.millicast.devices.track.VideoTrack
 import com.millicast.subscribers.state.TrackHolder
 import com.millicast.video.TextureViewRenderer
 import io.dolby.app.common.ui.fontColor
@@ -23,6 +24,15 @@ import org.webrtc.RendererCommon
 @Composable
 fun VideoTrack(
     sourceTrack: Map.Entry<String, TrackHolder.VideoTrackHolder>,
+    modifier: Modifier = Modifier
+) {
+    VideoTrack(id = sourceTrack.key, sourceTrack = sourceTrack.value.videoTrack, modifier = modifier)
+}
+
+@Composable
+fun VideoTrack(
+    id: String,
+    sourceTrack: VideoTrack,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -37,14 +47,14 @@ fun VideoTrack(
             .aspectRatio(16 / 9f)
     ) {
         AndroidView(
-            modifier = Modifier.testTag(sourceTrack.key),
+            modifier = Modifier.testTag(id),
             factory = { videoRenderer },
             update = { view ->
                 view.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT)
-                sourceTrack.value.videoTrack.setVideoSink(videoRenderer)
+                sourceTrack.setVideoSink(videoRenderer)
             }
         )
-        SourceText(sourceId = sourceTrack.key, modifier = Modifier.align(Alignment.TopStart))
+        SourceText(sourceId = id, modifier = Modifier.align(Alignment.TopStart))
     }
 }
 

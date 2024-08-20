@@ -9,8 +9,6 @@ import com.millicast.Media.videoSources
 import com.millicast.Publisher
 import com.millicast.devices.source.audio.MicrophoneAudioSource
 import com.millicast.devices.source.video.CameraVideoSource
-import com.millicast.devices.track.AudioTrack
-import com.millicast.devices.track.VideoTrack
 import com.millicast.publishers.Credential
 import com.millicast.publishers.Option
 import com.millicast.publishers.state.PublisherConnectionState
@@ -202,7 +200,9 @@ class PublishViewModel(
             publishingAudioVideoButtonText = audioVideoText,
             publishingAudioButtonType = getPublishingButtonType(state.isAudioSelected()),
             publishingVideoButtonType = getPublishingButtonType(state.isVideoSelected()),
-            publishingAudioVideoButtonType = getPublishingButtonType(state.isAudioVideoSelected())
+            publishingAudioVideoButtonType = getPublishingButtonType(state.isAudioVideoSelected()),
+            shouldShowPreview = state.activeTracks?.videoTrack != null,
+            activeVideoTrack = state.activeTracks?.videoTrack
         )
     }
 
@@ -218,6 +218,7 @@ class PublishViewModel(
 
     private fun connectPublisher(type: PublishingType) {
         val tracks = readyPublishingSources(type)
+        updateModelStateAndReduceToUi { copy(activeTracks = tracks) }
         if (tracks.isEmpty()) {
             handleError(Throwable("Unable to get media source to publish. Check permissions."))
         } else {
@@ -293,7 +294,8 @@ class PublishViewModel(
                 copy(
                     selectedMode = PublishingOptionMode.StopMode,
                     audioSource = null,
-                    videoSource = null
+                    videoSource = null,
+                    activeTracks = null
                 )
             }
         }
@@ -315,8 +317,4 @@ class PublishViewModel(
     companion object {
         private const val TAG = "PublishViewModel"
     }
-}
-
-data class ActiveTracks(val audioTrack: AudioTrack?, val videoTrack: VideoTrack?) {
-    fun isEmpty() = audioTrack == null && videoTrack == null
 }
