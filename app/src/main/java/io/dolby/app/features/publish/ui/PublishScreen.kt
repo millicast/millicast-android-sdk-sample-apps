@@ -282,22 +282,5 @@ fun PublishScreen(viewModel: PublishViewModel = koinInject()) {
             buttonType = ButtonType.SECONDARY,
             isEnabled = uiState.isStopEnabled
         )
-
-        Spacer(modifier = Modifier.height(5.dp))
-        Box(
-            modifier = Modifier
-                .semantics {
-                    contentDescription = "Playback Screen"
-                    testTag = "Playback Screen"
-                }
-                .fillMaxWidth()
-                .background(MaterialTheme.colors.background)
-        ) {
-            uiState.activeVideoTrack?.let {
-                if (uiState.shouldShowPreview) {
-                    VideoTrack(id = "Preview", sourceTrack = it)
-                }
-            }
-        }
     }
 }
