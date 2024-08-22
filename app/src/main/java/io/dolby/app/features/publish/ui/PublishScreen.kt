@@ -3,7 +3,6 @@ package io.dolby.app.features.publish.ui
 import android.Manifest
 import android.widget.Toast
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -42,7 +41,6 @@ import io.dolby.app.features.publish.PublishAction
 import io.dolby.app.features.publish.PublishSideEffect
 import io.dolby.app.features.publish.PublishViewModel
 import io.dolby.app.features.publish.PublishingType
-import io.dolby.app.features.subscribe.ui.tracks.VideoTrack
 import io.dolby.millicast.androidsdk.sampleapps.R
 import org.koin.compose.koinInject
 
@@ -282,22 +280,5 @@ fun PublishScreen(viewModel: PublishViewModel = koinInject()) {
             buttonType = ButtonType.SECONDARY,
             isEnabled = uiState.isStopEnabled
         )
-
-        Spacer(modifier = Modifier.height(5.dp))
-        Box(
-            modifier = Modifier
-                .semantics {
-                    contentDescription = "Playback Screen"
-                    testTag = "Playback Screen"
-                }
-                .fillMaxWidth()
-                .background(MaterialTheme.colors.background)
-        ) {
-            uiState.activeVideoTrack?.let {
-                if (uiState.shouldShowPreview) {
-                    VideoTrack(id = "Preview", sourceTrack = it)
-                }
-            }
-        }
     }
 }
