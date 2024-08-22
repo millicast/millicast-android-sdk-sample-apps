@@ -19,5 +19,5 @@ val publishModule = module {
 
 val subscribeModule = module {
     factory { Queue() }
-    viewModel { parameters -> SubscribeViewModel(queue = get(), isMultiView = parameters.get()) }
+    viewModel { parameters -> SubscribeViewModel(isMultiView = parameters.get()) }
 }
