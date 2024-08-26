@@ -10,7 +10,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.dolby.app.features.subscribe.ui.SubscribeViewModel
 
 @Composable
-fun Tracks(subscribeViewModel: SubscribeViewModel, modifier: Modifier = Modifier) {
+fun RemoteTracks(subscribeViewModel: SubscribeViewModel, modifier: Modifier = Modifier) {
     val uiState by subscribeViewModel.uiState.collectAsStateWithLifecycle()
     LazyColumn(
         modifier = modifier,
@@ -18,7 +18,7 @@ fun Tracks(subscribeViewModel: SubscribeViewModel, modifier: Modifier = Modifier
         verticalArrangement = if (uiState.isMultiView) Arrangement.Top else Arrangement.Center
     ) {
         items(uiState.sourceVideoTracks.size) {
-            VideoTrack(uiState.sourceVideoTracks[it])
+            RemoteVideoTrack(uiState.sourceVideoTracks[it])
         }
     }
     uiState.audioTrack?.let {

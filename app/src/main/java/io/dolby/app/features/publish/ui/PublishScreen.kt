@@ -3,6 +3,7 @@ package io.dolby.app.features.publish.ui
 import android.Manifest
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -31,6 +32,7 @@ import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
+import com.millicast.devices.track.VideoTrack
 import io.dolby.app.common.CollectSideEffect
 import io.dolby.app.common.ui.ButtonType
 import io.dolby.app.common.ui.DolbyButtonsContainer
@@ -148,6 +150,7 @@ fun PublishScreen(viewModel: PublishViewModel = koinInject()) {
                             )
                         }
                     }
+
                     PublishingType.VIDEO -> {
                         if (cameraPermissionState.status.shouldShowRationale) {
                             viewModel.onUiAction(
@@ -280,5 +283,40 @@ fun PublishScreen(viewModel: PublishViewModel = koinInject()) {
             buttonType = ButtonType.SECONDARY,
             isEnabled = uiState.isStopEnabled
         )
+
+        uiState.activeVideoTrack?.let {
+            if (uiState.shouldShowPreview) {
+                PreviewVideo(it)
+            }
+        }
+    }
+}
+
+@Composable
+fun PreviewVideo(videoTrack: VideoTrack) {
+    Spacer(modifier = Modifier.height(15.dp))
+    Text(
+        modifier = Modifier
+            .semantics {
+                contentDescription = "Stop Publishing"
+                testTag = "Stop Publishing"
+            }
+            .fillMaxWidth(),
+        text = "PREVIEW",
+        style = MaterialTheme.typography.body1,
+        color = MaterialTheme.colors.onSurface,
+        textAlign = TextAlign.Center
+    )
+    Spacer(modifier = Modifier.height(5.dp))
+    Box(
+        modifier = Modifier
+            .semantics {
+                contentDescription = "Playback Screen"
+                testTag = "Playback Screen"
+            }
+            .fillMaxWidth()
+            .background(MaterialTheme.colors.background)
+    ) {
+        PreviewVideoTrack(sourceTrack = videoTrack)
     }
 }
