@@ -26,7 +26,7 @@ import io.dolby.app.common.ui.fontColor
 import org.webrtc.RendererCommon
 
 @Composable
-fun VideoTrack(
+fun RemoteVideoTrack(
     sourceTrack: RemoteVideoTrack,
     modifier: Modifier = Modifier
 ) {

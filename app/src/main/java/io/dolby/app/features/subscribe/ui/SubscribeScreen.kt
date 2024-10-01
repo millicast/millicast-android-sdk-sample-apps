@@ -19,7 +19,7 @@ import androidx.compose.ui.semantics.testTag
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import io.dolby.app.features.subscribe.ui.tracks.Tracks
+import io.dolby.app.features.subscribe.ui.tracks.RemoteTracks
 import io.dolby.millicast.androidsdk.sampleapps.R
 import org.koin.compose.koinInject
 import org.koin.core.parameter.parametersOf
@@ -74,7 +74,7 @@ fun SubscribeScreen(
             .background(MaterialTheme.colors.background)
     ) {
         if (uiState.shouldShowTracks) {
-            Tracks(subscribeViewModel, Modifier.fillMaxSize())
+            RemoteTracks(subscribeViewModel, Modifier.fillMaxSize())
         }
     }
 }
