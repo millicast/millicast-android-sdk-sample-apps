@@ -8,7 +8,7 @@ plugins {
 
 android {
     namespace = "io.dolby.millicast.androidsdk.sampleapps"
-    compileSdk = 34
+    compileSdk = 35
     val tokenProperties = try {
         val tokenPropertiesFile = rootProject.file("token.properties")
         val properties = Properties()
