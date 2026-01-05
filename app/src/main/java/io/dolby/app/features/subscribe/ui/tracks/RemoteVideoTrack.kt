@@ -72,7 +72,7 @@ fun RemoteVideoTrack(
             }
         )
         SourceText(
-            sourceId = sourceTrack.sourceId ?: "CAM1",
+            sourceId = sourceTrack.sourceId ?: "",
             modifier = Modifier.align(Alignment.TopStart)
         )
     }

@@ -1,6 +1,7 @@
 package io.dolby.app.features.publish
 
 import com.millicast.devices.source.audio.AudioSource
+import com.millicast.devices.source.custom.CustomVideoSource
 import com.millicast.devices.source.video.VideoSource
 import com.millicast.devices.track.AudioTrack
 import com.millicast.devices.track.VideoTrack
@@ -61,6 +62,7 @@ data class PublishModelState(
     val publishingState: PublisherConnectionState? = null,
     val audioSource: AudioSource? = null,
     val videoSource: VideoSource? = null,
+    val customVideoSource: CustomVideoSource? = null,
     val activeTracks: ActiveTracks? = null
 ) : ModelState {
     fun isAudioSelected(): Boolean =

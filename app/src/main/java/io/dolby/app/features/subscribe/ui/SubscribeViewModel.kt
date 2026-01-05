@@ -100,7 +100,7 @@ class SubscribeViewModel(private val isMultiView: Boolean) :
     private fun getCredentials(): Credential {
         return if (isMultiView) {
             Credential(
-                streamName = "multiview",
+                streamName = "simulcastview",
                 accountId = "k9Mwad",
                 apiUrl = "https://director.millicast.com/api/director/subscribe"
             )

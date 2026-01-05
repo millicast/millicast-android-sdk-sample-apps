@@ -38,6 +38,7 @@ import io.dolby.app.common.ui.ButtonType
 import io.dolby.app.common.ui.DolbyButtonsContainer
 import io.dolby.app.common.ui.StyledButton
 import io.dolby.app.common.ui.fontColor
+import io.dolby.app.features.publish.CustomSourcePublishViewModel
 import io.dolby.app.features.publish.PermissionStatus
 import io.dolby.app.features.publish.PublishAction
 import io.dolby.app.features.publish.PublishSideEffect
@@ -48,7 +49,7 @@ import org.koin.compose.koinInject
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun PublishScreen(viewModel: PublishViewModel = koinInject()) {
+fun PublishScreen(viewModel: CustomSourcePublishViewModel = koinInject()) {
     val context = LocalContext.current
     val screenName = stringResource(id = R.string.publish_options)
     val lifecycleOwner = rememberUpdatedState(LocalLifecycleOwner.current)
